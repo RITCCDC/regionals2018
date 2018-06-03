@@ -1,0 +1,29 @@
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+  notify: 
+    - Reboot
+    - Wait for reboot
+
+- name: Install MariaDB
+  yum:
+    pkg: mariadb-server
+    state: latest
+
+- name: Start and enable MariaDB
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Add OTRS MariaDB config
+  copy:
+    src: zotrs.conf
+    dest: /etc/my.cnf.d/zotrs.cnf
+  notify: Restart MariaDB
+
+- name: Get OTRS RPM
+  get_url:
+    url: https://community.otrs.com/thank-you-for-downloading-the-otrs-community-edition/?download=RPMS/rhel/7/otrs-6.0.7-01.noarch.rpm
+    dest: /tmp/otrs.rpm
