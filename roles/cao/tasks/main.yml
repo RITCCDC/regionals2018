@@ -6,16 +6,20 @@
     - Reboot
     - Wait for reboot
 
-- name: Install MariaDB
+- name: Install MariaDB and database packages
   yum:
-    pkg: mariadb-server
+    pkg: "{{ item }}"
     state: latest
-    
+  with_items:
+    - mariadb-server
+    - mysql
+    - MySQL-python # Needed for MySQL Ansible modules
+
 - name: Add OTRS MariaDB config
   copy:
     src: zotrs.conf
     dest: /etc/my.cnf.d/zotrs.cnf
-    notify: Restart MariaDB
+  notify: Restart MariaDB
 
 - name: Start and enable MariaDB
   service:
@@ -23,7 +27,54 @@
     state: started
     enabled: yes
 
+- name: Add OTRS Database
+  mysql_db:
+    name: otrs
+    encoding: utf8
+    state: present
+
+- name: Add OTRS User with full privs on OTRS DB
+  mysql_user:
+    name: otrs
+    password: password
+    priv: 'otrs.*:ALL'
+    state: present
+
 - name: Get OTRS RPM
   get_url:
-    url: https://community.otrs.com/thank-you-for-downloading-the-otrs-community-edition/?download=RPMS/rhel/7/otrs-6.0.7-01.noarch.rpm
+    url: http://ftp.otrs.org/pub/otrs/RPMS/rhel/7/otrs-6.0.7-01.noarch.rpm
     dest: /tmp/otrs.rpm
+
+- name: Install OTRS
+  yum:
+    name: /tmp/otrs.rpm
+    disable_gpg_check: yes
+    state: present
+
+- name: Install OTRS required Perl modules
+  yum:
+    name: "perl(Text::CSV_XS)"
+    state: present
+
+- name: Start OTRS
+  shell: /opt/otrs/bin/otrs.Daemon.pl start
+  become: yes
+  become_user: otrs
+
+- name: Start OTRS Cron daemon
+  shell: /opt/otrs/bin/Cron.sh start
+  become: yes
+  become_user: otrs
+
+- name: Start and enable Apache
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+
+- name: Stop the firewall
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
