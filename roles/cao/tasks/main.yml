@@ -10,18 +10,18 @@
   yum:
     pkg: mariadb-server
     state: latest
+    
+- name: Add OTRS MariaDB config
+  copy:
+    src: zotrs.conf
+    dest: /etc/my.cnf.d/zotrs.cnf
+    notify: Restart MariaDB
 
 - name: Start and enable MariaDB
   service:
     name: mariadb
     state: started
     enabled: yes
-
-- name: Add OTRS MariaDB config
-  copy:
-    src: zotrs.conf
-    dest: /etc/my.cnf.d/zotrs.cnf
-  notify: Restart MariaDB
 
 - name: Get OTRS RPM
   get_url:
