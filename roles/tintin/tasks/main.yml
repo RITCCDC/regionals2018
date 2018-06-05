@@ -1,0 +1,27 @@
+- name: Install Active Directory
+  win_feature:
+    name: AD-Domain-Services
+    include_management_tools: True
+    state: present
+  notify:
+     - Reboot
+     - Wait for reboot
+- name: Ensure domain exists
+  win_domain:
+     dns_domain_name: wildeagle.local
+     safe_mode_password: Change.me!
+  register: domain_result
+# It doesn't appear that this module correctly notifies handlers, so just
+# manually restart the computer. Same for win_domain_controller.
+- name: Reboot server if domain is created
+  win_reboot:
+  when: domain_result.reboot_required
+- name: Promote to domain controller
+  win_domain_controller:
+     dns_domain_name: wildeagle.local
+     domain_admin_user: Administrator@wildeagle.local
+     domain_admin_password: Change.me!
+     safe_mode_password: Change.me!
+     state: domain_controller
+- name: Reboot server again
+  win_reboot:
