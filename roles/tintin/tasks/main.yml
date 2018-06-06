@@ -6,22 +6,40 @@
   notify:
      - Reboot
      - Wait for reboot
+
 - name: Ensure domain exists
   win_domain:
-     dns_domain_name: wildeagle.local
+     dns_domain_name: team4.wildeagle.local
      safe_mode_password: Change.me!
   register: domain_result
+
 # It doesn't appear that this module correctly notifies handlers, so just
 # manually restart the computer. Same for win_domain_controller.
+
 - name: Reboot server if domain is created
   win_reboot:
   when: domain_result.reboot_required
+
 - name: Promote to domain controller
   win_domain_controller:
-     dns_domain_name: wildeagle.local
+     dns_domain_name: team4.wildeagle.local
      domain_admin_user: Administrator@wildeagle.local
      domain_admin_password: Change.me!
      safe_mode_password: Change.me!
      state: domain_controller
+
 - name: Reboot server again
   win_reboot:
+
+- name: Upload DNS records
+  win_copy:
+     src: ../files/hostnames.csv
+     dest: C:\hostnames.csv
+
+- name: Import DNS records
+  script: ../files/Import-DNS.ps1 C:\hostnames.csv
+
+- name: Clean up DNS records
+  win_file:
+     path: C:\hostnames.csv
+     state: absent
