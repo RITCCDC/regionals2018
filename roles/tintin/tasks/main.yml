@@ -3,18 +3,17 @@
     name: AD-Domain-Services
     include_management_tools: True
     state: present
-  notify:
-     - Reboot
-     - Wait for reboot
+  register: ad_result
+
+- name: Reboot server if AD was installed
+  win_reboot:
+  when: ad_result.reboot_required
 
 - name: Ensure domain exists
   win_domain:
      dns_domain_name: team4.wildeagle.local
      safe_mode_password: Change.me!
   register: domain_result
-
-# It doesn't appear that this module correctly notifies handlers, so just
-# manually restart the computer. Same for win_domain_controller.
 
 - name: Reboot server if domain is created
   win_reboot:
