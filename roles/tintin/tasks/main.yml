@@ -32,28 +32,42 @@
   win_reboot:
   when: ad_result.reboot_required
 
+- name: See if DNS already imported
+  win_shell: nslookup gadget.team4.wildeagle.local
+  register: dns_output
+
 - name: Upload DNS records
   win_copy:
      src: ../files/hostnames.csv
      dest: C:\hostnames.csv
+  when: "'can't find' in dns_output.stdout"
 
 - name: Import DNS records
   script: ../files/Import-DNS.ps1 C:\hostnames.csv
+  when: "'can't find' in dns_output.stdout"
 
 - name: Clean up DNS records
   win_file:
      path: C:\hostnames.csv
      state: absent
+  when: "'can't find' in dns_output.stdout"
+
+- name: See if users already imported
+  win_shell: net user sam /domain
+  register: user_output
 
 - name: Upload usernames
   win_copy:
      src: ../files/users.csv
      dest: C:\users.csv
+  when: user_output.rc != 0
 
 - name: Import domain users
   script: ../files/Add-Users.ps1 C:\users.csv
+  when: user_output.rc != 0
 
 - name: Clean up users.csv
   win_file:
      path: C:\users.csv
      state: absent
+  when: user_output.rc != 0
