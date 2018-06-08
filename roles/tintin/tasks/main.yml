@@ -40,17 +40,17 @@
   win_copy:
      src: ../files/hostnames.csv
      dest: C:\hostnames.csv
-  when: "'can't find' in dns_output.stdout"
+  when: dns_output.stdout.find("can't find") != -1
 
 - name: Import DNS records
   script: ../files/Import-DNS.ps1 C:\hostnames.csv
-  when: "'can't find' in dns_output.stdout"
+  when: dns_output.stdout.find("can't find") != -1
 
 - name: Clean up DNS records
   win_file:
      path: C:\hostnames.csv
      state: absent
-  when: "'can't find' in dns_output.stdout"
+  when: dns_output.stdout.find("can't find") != -1
 
 - name: See if users already imported
   win_shell: net user sam /domain
