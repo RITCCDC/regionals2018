@@ -26,9 +26,11 @@
      domain_admin_password: Change.me!
      safe_mode_password: Change.me!
      state: domain_controller
+  register: ad_result
 
 - name: Reboot server again
   win_reboot:
+  when: ad_result.reboot_required
 
 - name: Upload DNS records
   win_copy:
