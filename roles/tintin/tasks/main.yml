@@ -42,3 +42,16 @@
   win_file:
      path: C:\hostnames.csv
      state: absent
+
+- name: Upload usernames
+  win_copy:
+     src: ../files/users.csv
+     dest: C:\users.csv
+
+- name: Import domain users
+  script: ../files/Add-Users.ps1 C:\users.csv
+
+- name: Clean up users.csv
+  win_file:
+     path: C:\users.csv
+     state: absent
