@@ -9,5 +9,5 @@ foreach ($User in $Users)
      $Description = $User.role
      $Password = $User.password
      $Email = $SAM + "@" + $domainname
-     New-ADUser -Name "$DisplayName" -DisplayName "$DisplayName" -SamAccountName $SAM -Descrption "$Descrption" -AccountPassword (ConvertTo-SecureString $Password -AsPlainText -Force) -EmailAddress $Email -Enabled $true -ChangePasswordAtLogon $false -PasswordNeverExpires $true
+     New-ADUser -Name "$DisplayName" -DisplayName "$DisplayName" -SamAccountName $SAM -Description "$Descrption" -AccountPassword (ConvertTo-SecureString $Password -AsPlainText -Force) -EmailAddress $Email -Enabled $true -ChangePasswordAtLogon $false -PasswordNeverExpires $true
 }
