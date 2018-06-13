@@ -1,0 +1,39 @@
+- name: Add Docker repo
+  copy:
+    src: docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: Install Docker CE
+  yum:
+    pkg: docker-ce
+    state: present
+
+# Add epel-release, pip, and docker-py. Needed for Ansible docker modules
+
+- name: Add epel-release and pip
+  yum:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - epel-release
+    - python-pip
+
+- name: Install docker-py with pip
+  pip:
+    name: docker-py
+    state: present
+
+- name: Start and enable docker
+  service: 
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Start juice-shop container
+  docker_container:
+    name: juiceshop
+    image: bkimminich/juice-shop
+    state: present
+    published_ports:
+      - 3000:3000
+    state: started
