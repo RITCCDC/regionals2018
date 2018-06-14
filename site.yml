@@ -7,3 +7,6 @@
 - hosts: poirot
   roles:
     - poirot
+- hosts: spade
+  roles:
+    - spade

@@ -1,0 +1,17 @@
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Stop the firewall
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: Set file descriptor limits frequired by GLUU
+  blockinfile:
+    path: /etc/security/limits.conf
+    insertbefore: '# End of file'
+    block: |
+      soft nofile 65536
+      hard nofile 262144
