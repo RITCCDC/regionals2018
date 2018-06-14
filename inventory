@@ -1,7 +1,21 @@
 [windows]
+mulder
+clousaeu
+tintin
+holmes
 
 [windows:vars]
 ansible_connection=winrm
 ansible_user=Administrator
 ansible_password=Change.me!
 ansible_port=5985
+
+[windows-clients]
+mulder
+clousaeu
+
+[mulder]
+10.1.4.14
+
+[clousaeu]
+10.1.4.15
