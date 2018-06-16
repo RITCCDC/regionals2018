@@ -1,9 +1,9 @@
 - hosts: cao
   roles:
-    - cao
+     - cao
 - hosts: tintin
   roles:
-    - tintin
-- hosts: poirot
+     - tintin
+- hosts: windows-clients
   roles:
-    - poirot
+     - windowsCommon
