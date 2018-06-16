@@ -14,6 +14,9 @@ ansible_port=5985
 mulder
 clousaeu
 
+[tintin]
+10.1.4.10
+
 [mulder]
 10.1.4.14
 
