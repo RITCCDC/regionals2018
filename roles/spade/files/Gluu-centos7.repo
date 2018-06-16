@@ -1,0 +1,6 @@
+[Gluu-rpm-centos7-repo]
+name=Gluu centos7 repo
+baseurl=http://repo.gluu.org/centos/7/
+enabled=1
+gpgcheck=1
+gpgkey=http://repo.gluu.org/centos/RPM-GPG-KEY-GLUU

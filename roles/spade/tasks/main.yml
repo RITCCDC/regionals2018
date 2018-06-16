@@ -15,3 +15,13 @@
     block: |
       soft nofile 65536
       hard nofile 262144
+
+- name: Add Gluu repo
+  copy:
+    src: Gluu-centos7.repo
+    dest: /etc/yum.repos.d/Gluu-centos7.repo
+
+- name: Install Gluu
+  yum:
+    pkg: gluu-server-3.1.3
+    state: present
