@@ -4,7 +4,20 @@
       - Web-Server
       - File-Services
     state: present
+
 - name: Deploy webserver
   win_copy:
     src: ../files/web/
     dest: C:\webroot
+
+- name: Create directory for SMB share
+  win_file:
+    path: C:\Groupdata
+    state: directory
+
+- name: Add SMB share
+  win_share:
+    name: Groupdata
+    path: C:\Groupdata
+    caching_mode: Documents
+    encrypt: yes
