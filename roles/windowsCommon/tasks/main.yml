@@ -18,7 +18,7 @@
   when: domain_state.reboot_required
 
 - name: Enable Remote Desktop
-  raw: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0 -PropertyType dword -Force
+  raw: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0 -Force
 
 - name: Disable firewall
   win_firewall:
