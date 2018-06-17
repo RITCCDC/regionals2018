@@ -1,12 +1,16 @@
 - hosts: cao
   roles:
-    - cao
+     - cao
 - hosts: tintin
   roles:
-    - tintin
-- hosts: poirot
+     - tintin
+- hosts: windows-clients
   roles:
+<<<<<<< HEAD
     - poirot
 - hosts: spade
   roles:
     - spade
+=======
+     - windowsCommon
+>>>>>>> master
