@@ -3,6 +3,7 @@
     name:
       - Web-Server
       - File-Services
+    include_management_tools: yes
     state: present
 
 - name: Deploy webserver
