@@ -1,16 +1,16 @@
 - name: Point DNS at domain controller
   win_dns_client:
-     adapter_names: "*"
-     ipv4_addresses:
-        - 10.1.4.10
+    adapter_names: "*"
+    ipv4_addresses:
+      - 10.1.4.10
 
 - name: Join host to domain
   win_domain_membership:
-     dns_domain_name: team4.wildeagle.local
-     hostname: "{{ lookup('csvfile', '{{ ansible_ip_addresses[0] }} file=../../tintin/files/hostnames.csv delimiter=,') }}"
-     domain_admin_user: TEAM4\Administrator
-     domain_admin_password: Change.me!
-     state: domain
+    dns_domain_name: team4.wildeagle.local
+    hostname: "{{ lookup('csvfile', '{{ ansible_ip_addresses[0] }} file=../../tintin/files/hostnames.csv delimiter=,') }}"
+    domain_admin_user: TEAM4\Administrator
+    domain_admin_password: Change.me!
+    state: domain
   register: domain_state
 
 - name: Reboot if necessary
@@ -22,8 +22,11 @@
 
 - name: Disable firewall
   win_firewall:
-     state: disabled
-     profiles:
-       - Public
-       - Private
-       - Domain
+    state: disabled
+    profiles:
+      - Public
+      - Private
+      - Domain
+
+- name: Disable Windows Defender
+  raw: Set-MpPreference -DisableRealtimeMonitoring $true
