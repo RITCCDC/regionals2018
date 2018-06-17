@@ -1,0 +1,10 @@
+- name: Install IIS and File and iSCSI Services (SMB)
+  win_feature:
+    name:
+      - Web-Server
+      - File-Services
+    state: present
+- name: Deploy webserver
+  win_copy:
+    src: ../files/web/
+    dest: C:\webroot
