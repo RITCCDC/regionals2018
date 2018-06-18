@@ -16,3 +16,19 @@
       port=22
       delay=1
       timeout=30
+  when: hostname is changed
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Download iRedMail package
+  get_url:
+    url: https://bitbucket.org/zhb/iredmail/downloads/iRedMail-0.9.8.tar.bz2
+    dest: /tmp/iRedMail-0.9.8.tar.bz2
+
+- name: Extract archive
+  unarchive:
+    src: /tmp/iRedMail-0.9.8.tar.bz2
+    dest: /tmp/iRedMail
+    remote_src: yes
