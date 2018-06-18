@@ -21,14 +21,24 @@
 - name: Disable SELinux
   selinux:
     state: disabled
+  register: selinux
+
+- name: Reboot if SELinux state changed
+  shell: 'sleep 1 && reboot && sleep1'
+  async: 1
+  poll: 0
+  when: selinux is changed
 
 - name: Download iRedMail package
   get_url:
     url: https://bitbucket.org/zhb/iredmail/downloads/iRedMail-0.9.8.tar.bz2
     dest: /tmp/iRedMail-0.9.8.tar.bz2
 
+- name: Make sure bzip2 is installed
+  yum: name=bzip2 state=installed
+
 - name: Extract archive
   unarchive:
     src: /tmp/iRedMail-0.9.8.tar.bz2
-    dest: /tmp/iRedMail
+    dest: /tmp
     remote_src: yes
