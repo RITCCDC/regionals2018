@@ -6,6 +6,10 @@
   roles:
     - windowsCommon
 
+- hosts: linux
+  roles:
+    - linuxCommon
+
 - hosts: holmes
   roles:
     - holmes
