@@ -1,16 +1,43 @@
+- hosts: tintin
+  roles:
+    - tintin
+
+- hosts: windows-clients
+  roles:
+    - windowsCommon
+
+- hosts: holmes
+  roles:
+    - holmes
+
+- hosts: gently
+  roles:
+    - gently
+
 - hosts: cao
   roles:
      - cao
-- hosts: tintin
-  roles:
-     - tintin
-- hosts: windows-clients
-  roles:
-<<<<<<< HEAD
-    - poirot
+
 - hosts: spade
   roles:
     - spade
-=======
-     - windowsCommon
->>>>>>> master
+
+- hosts: mason
+  roles:
+    - mason
+
+- hosts: hammer
+  roles:
+    - hammer
+
+- hosts: poirot
+  roles:
+    - poirot
+
+- hosts: brown
+  roles:
+    - brown
+
+- hosts: dupin
+  roles:
+    - dupin
