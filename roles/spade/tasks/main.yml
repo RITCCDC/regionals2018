@@ -26,11 +26,8 @@
   wait_for:
     port: 60022
 
-- name: Get Gluu SSH key
-  fetch:
-    src: /etc/gluu/keys/gluu-console
-    dest: /tmp/gluu-console
-    flat: yes
+- name: Make sure Ansible can log into the Gluu chroot via locahost
+  shell: cat /root/.ssh/authorized_keys >> /opt/gluu-server-3.1.3/root/.ssh/authorized_keys
 
 # The commands below run within the Gluu chroot environment
 
@@ -66,9 +63,3 @@
     - setup.properties
     - setup.properties.last
   delegate_to: gluuContainer
-
-- name: Remove GLUU key from local host
-  local_action:
-    module: file
-    path: /tmp/gluu-console
-    state: absent
