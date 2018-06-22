@@ -1,0 +1,88 @@
+- name: Set the hostname
+  hostname:
+    name: spade
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Stop the firewall
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: Set file descriptor limits frequired by GLUU
+  blockinfile:
+    path: /etc/security/limits.conf
+    insertbefore: '# End of file'
+    block: |
+      soft nofile 65536
+      hard nofile 262144
+
+- name: Add Gluu repo
+  copy:
+    src: Gluu-centos7.repo
+    dest: /etc/yum.repos.d/Gluu-centos7.repo
+
+- name: Install Gluu
+  yum:
+    pkg: gluu-server-3.1.3
+    state: present
+
+- name: Enable Gluu
+  command: /sbin/gluu-serverd-3.1.3 enable
+
+- name: Start Gluu
+  command: /sbin/gluu-serverd-3.1.3 start
+
+- name: Wait for Gluu container to launch
+  wait_for:
+    port: 60022
+
+- name: Get Gluu SSH key
+  fetch:
+    src: /etc/gluu/keys/gluu-console
+    dest: /tmp/gluu-console
+    flat: yes
+
+# The commands below run within the Gluu chroot environment
+
+- name: Check to see if install has already been run
+  stat:
+    path: /install/community-edition-setup/setup.log
+  register: gluuInstallLog
+  delegate_to: gluuContainer
+
+- name: Set installed flag
+  set_fact:
+    gluuInstalled: "{{ gluuInstallLog.stat.exists }}"
+
+- name: Send Gluu setup properties
+  copy:
+    src: setup.properties
+    dest: /install/community-edition-setup/setup.properties
+  delegate_to: gluuContainer
+  when: gluuInstalled == False
+
+- name: Run setup
+  command: /install/community-edition-setup/setup.py -nf /install/community-edition-setup/setup.properties
+  args:
+    chdir: /install/community-edition-setup/
+  delegate_to: gluuContainer
+  when: gluuInstalled == False
+
+- name: Delete setup properties
+  file:
+    path: /install/community-edition-setup/{{ item }}
+    state: absent
+  with_items:
+    - setup.properties
+    - setup.properties.last
+  delegate_to: gluuContainer
+
+- name: Remove GLUU key from local host
+  local_action:
+    module: file
+    path: /tmp/gluu-console
+    state: absent

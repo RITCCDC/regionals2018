@@ -1,2 +1,4 @@
 cao
 poirot
+spade
+gluuContainer ansible_host=spade ansible_port=60022 ansible_user=root ansible_ssh_private_key_file=/tmp/gluu-console

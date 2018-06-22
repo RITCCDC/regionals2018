@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 - name: Point DNS at domain controller
   win_dns_client:
     adapter_names: "*"
@@ -30,3 +32,4 @@
 
 - name: Disable Windows Defender
   raw: Set-MpPreference -DisableRealtimeMonitoring $true
+>>>>>>> master
