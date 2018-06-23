@@ -42,3 +42,16 @@
     src: /tmp/iRedMail-0.9.8.tar.bz2
     dest: /tmp
     remote_src: yes
+
+- name: Copy install config
+  copy:
+    src: ../files/config
+    dest: /tmp/iRedMail-0.9.8/config
+
+- name: Setpermissions on install script
+  file:
+    path: "/tmp/iRedMail-0.9.8/iRedMail.sh"
+    mode: 0700
+
+- name: Install iRedMail
+  shell: "IREDMAIL_DEBUG='NO' AUTO_USE_EXISTING_CONFIG_FILE=y AUTO_INSTALL_WITHOUT_CONFIRM=y bash iRedMail.sh"
