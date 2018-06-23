@@ -1,0 +1,10 @@
+- name: Send JDK RPM
+  copy:
+    src: jdk.rpm
+    dest: /tmp/jdk.rpm
+
+- name: Install JDK
+  yum:
+    name: /tmp/jdk.rpm
+    disable_gpg_check: yes
+    state: present
