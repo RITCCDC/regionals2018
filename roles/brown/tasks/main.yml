@@ -8,3 +8,43 @@
     name: /tmp/jdk.rpm
     disable_gpg_check: yes
     state: present
+
+- name: Download Maven
+  get_url:
+    url: http://apache.mirrors.lucidnetworks.net/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
+    dest: /tmp/maven.tar.gz
+
+- name: Extract Maven
+  unarchive:
+    src: /tmp/maven.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+- name: Install Maven
+  shell: rm -rf /usr/local/bin/maven && mv -f /tmp/apache-maven-* /usr/local/bin/maven
+
+- name: Add Maven to path
+  lineinfile:
+    path: /etc/profile
+    line: PATH=$PATH:/usr/local/bin/maven/bin
+    state: present
+    insertafter: EOF
+
+- name: Install git
+  yum:
+    pkg: git
+    state: present
+
+- name: Download LMVC
+  git:
+    repo: https://github.com/skavanagh/lmvc.git
+    dest: /tmp/lmvc
+
+- name: Install MVC
+  shell: /usr/local/bin/maven/bin/mvn clean package install -Dmaven.javadoc.skip=true
+  args:
+    chdir: /tmp/lmvc
+  environment:
+    JAVA_HOME: /usr/java/latest/
+    M2_HOME: /usr/local/bin/maven
+    PATH: $JAVA_HOME/bin:$M2_HOME/bin:$PATH
