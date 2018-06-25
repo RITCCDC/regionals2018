@@ -23,12 +23,16 @@
 - name: Install Maven
   shell: rm -rf /usr/local/bin/maven && mv -f /tmp/apache-maven-* /usr/local/bin/maven
 
-- name: Add Maven to path
+- name: Set Java Home, Maven Home, and PATH
   lineinfile:
     path: /etc/profile
-    line: PATH=$PATH:/usr/local/bin/maven/bin
+    line: "{{ item }}"
     state: present
     insertafter: EOF
+  with_items:
+    - JAVA_HOME=/usr/java/latest/
+    - M2_HOME=/usr/local/bin/maven
+    - PATH=$JAVA_HOME/bin:$M2_HOME/bin:$PATH
 
 - name: Install git
   yum:
@@ -40,11 +44,33 @@
     repo: https://github.com/skavanagh/lmvc.git
     dest: /tmp/lmvc
 
-- name: Install MVC
+- name: Install LMVC
   shell: /usr/local/bin/maven/bin/mvn clean package install -Dmaven.javadoc.skip=true
   args:
     chdir: /tmp/lmvc
-  environment:
-    JAVA_HOME: /usr/java/latest/
-    M2_HOME: /usr/local/bin/maven
-    PATH: $JAVA_HOME/bin:$M2_HOME/bin:$PATH
+
+- name: Download Keybox
+  git:
+    repo: https://github.com/skavanagh/KeyBox.git
+    dest: /root/Keybox
+
+- name: Set Keybox database password
+  lineinfile:
+    path: /root/Keybox/src/main/resources/KeyBoxConfig.properties
+    regexp: '^dbPassword='
+    line: 'dbPassword=password'
+    state: present
+
+- name: Check if Keybox is running
+  shell: pgrep -f Keybox
+  ignore_errors: true
+  register: keyboxRunning
+  tags: test
+
+- name: Start Keybox
+  shell: nohup /usr/local/bin/maven/bin/mvn package jetty:run </dev/null >/dev/null 2>&1 && sleep 1 &
+  args:
+    chdir: /root/Keybox
+  when:
+    keyboxRunning.stdout == ''
+  tags: test
