@@ -1,0 +1,76 @@
+- name: Send JDK RPM
+  copy:
+    src: jdk.rpm
+    dest: /tmp/jdk.rpm
+
+- name: Install JDK
+  yum:
+    name: /tmp/jdk.rpm
+    disable_gpg_check: yes
+    state: present
+
+- name: Download Maven
+  get_url:
+    url: http://apache.mirrors.lucidnetworks.net/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
+    dest: /tmp/maven.tar.gz
+
+- name: Extract Maven
+  unarchive:
+    src: /tmp/maven.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+- name: Install Maven
+  shell: rm -rf /usr/local/bin/maven && mv -f /tmp/apache-maven-* /usr/local/bin/maven
+
+- name: Set Java Home, Maven Home, and PATH
+  lineinfile:
+    path: /etc/profile
+    line: "{{ item }}"
+    state: present
+    insertafter: EOF
+  with_items:
+    - JAVA_HOME=/usr/java/latest/
+    - M2_HOME=/usr/local/bin/maven
+    - PATH=$JAVA_HOME/bin:$M2_HOME/bin:$PATH
+
+- name: Install git
+  yum:
+    pkg: git
+    state: present
+
+- name: Download LMVC
+  git:
+    repo: https://github.com/skavanagh/lmvc.git
+    dest: /tmp/lmvc
+
+- name: Install LMVC
+  shell: /usr/local/bin/maven/bin/mvn clean package install -Dmaven.javadoc.skip=true
+  args:
+    chdir: /tmp/lmvc
+
+- name: Download Keybox
+  git:
+    repo: https://github.com/skavanagh/KeyBox.git
+    dest: /root/Keybox
+
+- name: Set Keybox database password
+  lineinfile:
+    path: /root/Keybox/src/main/resources/KeyBoxConfig.properties
+    regexp: '^dbPassword='
+    line: 'dbPassword=password'
+    state: present
+
+- name: Check if Keybox is running
+  shell: pgrep -f Keybox
+  ignore_errors: true
+  register: keyboxRunning
+  tags: test
+
+- name: Start Keybox
+  shell: nohup /usr/local/bin/maven/bin/mvn package jetty:run </dev/null >/dev/null 2>&1 && sleep 1 &
+  args:
+    chdir: /root/Keybox
+  when:
+    keyboxRunning.stdout == ''
+  tags: test
