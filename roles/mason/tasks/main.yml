@@ -24,10 +24,19 @@
   register: selinux
 
 - name: Reboot if SELinux state changed
-  shell: 'sleep 1 && reboot && sleep1'
+  shell: 'sleep 1 && reboot && sleep 1'
   async: 1
   poll: 0
   when: selinux is changed
+
+- name: Wait for server to restart
+  local_action:
+    module: wait_for
+      host=mason
+      port=22
+      delay=1
+      timeout=30
+  when: hostname is changed
 
 - name: Download iRedMail package
   get_url:
@@ -58,3 +67,10 @@
   shell: "IREDMAIL_DEBUG='NO' AUTO_USE_EXISTING_CONFIG_FILE=y AUTO_INSTALL_WITHOUT_CONFIRM=y bash iRedMail.sh"
   args:
     chdir: "/tmp/iRedMail-0.9.8"
+  register: iredmail_install
+
+- name: Reboot server so all iRedMail services come up
+  shell: 'sleep 1 && reboot && sleep 1'
+  async: 1
+  poll: 0
+  when: iredmail_install.rc == 0
