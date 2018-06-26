@@ -1,6 +1,6 @@
 - name: Set hostname
   hostname:
-    name: mason.wildeagle.net
+    name: mason.team4.wildeagle.net
   register: hostname
 
 - name: Reboot if hostname updated
@@ -47,8 +47,9 @@
   copy:
     src: ../files/config
     dest: /tmp/iRedMail-0.9.8/config
+    mode: 0644
 
-- name: Setpermissions on install script
+- name: Set permissions on install script
   file:
     path: "/tmp/iRedMail-0.9.8/iRedMail.sh"
     mode: 0700
