@@ -2,3 +2,20 @@
   service:
     name: mariadb
     state: restarted
+
+- name: Copy OTRS DB Dump
+  copy:
+    src: otrs.sql
+    dest: /tmp/otrs.sql
+
+- name: Import OTRS DB
+  mysql_db:
+    name: otrs
+    encoding: utf8
+    state: import
+    target: /tmp/otrs.sql
+
+- name: Remove OTRS DB Dump
+  file:
+    path: /tmp/otrs
+    state: absent

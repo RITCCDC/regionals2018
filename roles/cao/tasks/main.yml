@@ -19,16 +19,20 @@
     state: started
     enabled: yes
 
-- name: Add OTRS Database
+- name: Add OTRS database and import initial data
   mysql_db:
     name: otrs
     encoding: utf8
     state: present
+  notify:
+    - Copy OTRS DB Dump
+    - Import OTRS DB
+    - Remove OTRS DB Dump
 
 - name: Add OTRS User with full privs on OTRS DB
   mysql_user:
     name: otrs
-    password: password
+    password: "{{ common_password }}"
     priv: 'otrs.*:ALL'
     state: present
 
@@ -47,6 +51,11 @@
   yum:
     name: "perl(Text::CSV_XS)"
     state: present
+
+- name: Add OTRS config
+  template:
+    src: Config.pm
+    dest: /opt/otrs/Kernel/Config.pm
 
 - name: Start OTRS
   shell: /opt/otrs/bin/otrs.Daemon.pl start
