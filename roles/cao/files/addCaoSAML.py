@@ -70,6 +70,10 @@ WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, 'trustF
 spMetadataFile = driver.find_element_by_name('trustForm:fileWrapper:fileWrapperId')
 spMetadataFile.send_keys(args.metadataFile)
 
+# Release the username attribute to the SP
+usernameAttribute = driver.find_element_by_name('trustForm:j_idt368:0:j_idt371:32:j_idt373')
+usernameAttribute.click()
+
 # Submit the form
 addButton = driver.find_element_by_name('trustForm:j_idt605')
 addButton.click()

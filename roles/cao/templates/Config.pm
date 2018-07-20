@@ -24,6 +24,9 @@ use utf8;
 sub Load {
     my $Self = shift;
 
+    # Use HTTP-based auth (SAML, or whatever Apache passes to it)
+    $Self->{'AuthModule'} = 'Kernel::System::Auth::HTTPBasicAuth';
+
     # ---------------------------------------------------- #
     # database settings                                    #
     # ---------------------------------------------------- #
