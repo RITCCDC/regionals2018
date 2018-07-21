@@ -67,6 +67,85 @@
   become: yes
   become_user: otrs
 
+- name: Install mod_ssl and mod_auth_mellon
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - mod_ssl
+    - mod_auth_mellon
+  notify: Restart Apache
+
+- name: Check to see if metadata already exists
+  stat: 
+    path: /etc/httpd/mellon/https_cao_entityID.xml
+  register: mellonMetadataFile
+
+- name: Set metadata flag
+  set_fact:
+    metadataPresent: "{{ mellonMetadataFile.stat.exists }}"
+
+- name: Get auth_mellon metadata script
+  get_url:
+    url: https://raw.githubusercontent.com/UNINETT/mod_auth_mellon/master/mellon_create_metadata.sh
+    dest: /tmp/mellon_create_metadata.sh
+  when: metadataPresent == False
+
+- name: Make auth_mellon metadata script executable
+  file: 
+    path: /tmp/mellon_create_metadata.sh
+    mode: 0744
+  when: metadataPresent == False
+
+- name: Create SAML key, cert, and metadata
+  shell: /tmp/mellon_create_metadata.sh mellon_create_metadata.sh https://cao/mellon https://cao/mellon
+  args:
+    chdir: /tmp
+  when: metadataPresent == False
+
+- name: Create mellon config directory
+  file:
+    path: /etc/httpd/mellon
+    state: directory
+  when: metadataPresent == False
+
+- name: Move SAML key, cert, and metadata
+  shell: mv /tmp/"{{item.src}}" /etc/httpd/mellon/"{{item.dst}}"
+  with_items:
+    - {src: mellon_create_metadata.sh.cert, dst: https_cao_entityID.cert}
+    - {src: mellon_create_metadata.sh.key, dst: https_cao_entityID.key}
+    - {src: mellon_create_metadata.sh.xml, dst: https_cao_entityID.xml}
+  when: metadataPresent == False
+  notify: Restart Apache
+
+- name: Fetch metadata
+  fetch:
+    src: /etc/httpd/mellon/https_cao_entityID.xml
+    dest: /tmp/cao_metadata.xml
+    flat: yes
+  when: metadataPresent == False
+
+- name: Get Gluu metadata
+  get_url:
+    url: https://10.0.1.105/idp/shibboleth
+    dest: /etc/httpd/mellon/gluu_metadata.xml
+    validate_certs: False
+
+- name: Copy SAML Apache config
+  copy:
+    src: otrsSAML.conf
+    dest: /etc/httpd/conf.d/otrsSAML.conf
+  notify: Restart Apache
+
+
+- name: Upload metadata to Gluu server
+  shell: python3 addCaoSAML.py -g spade -u admin -p password -n cao -d OTRS -f /tmp/cao_metadata.xml
+  args:
+    chdir: "{{ role_path }}/files"
+  delegate_to: localhost
+  when: metadataPresent == False
+
+
 - name: Start and enable Apache
   service:
     name: httpd

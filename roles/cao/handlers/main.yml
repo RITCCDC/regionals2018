@@ -3,6 +3,11 @@
     name: mariadb
     state: restarted
 
+- name: Restart Apache
+  service:
+    name: httpd
+    state: restarted
+
 - name: Copy OTRS DB Dump
   copy:
     src: otrs.sql

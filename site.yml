@@ -3,6 +3,7 @@
     - tintin
 
 - hosts: windows-clients
+
   roles:
     - windowsCommon
 
@@ -18,13 +19,13 @@
   roles:
     - gently
 
-- hosts: cao
-  roles:
-     - cao
-
 - hosts: spade
   roles:
     - spade
+
+- hosts: cao
+  roles:
+     - cao
 
 - hosts: mason
   roles:
