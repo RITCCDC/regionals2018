@@ -1,0 +1,11 @@
+- name: Fetch the key for Keybox
+  fetch:
+    src: /root/.ssh/id_rsa.pub
+    dest: /tmp/sshkeybox.pub
+    flat: yes
+  delegate_to: brown
+
+- name: Add the Keybox key to all hosts
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', '/tmp/sshkeybox.pub') }}"

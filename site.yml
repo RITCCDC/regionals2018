@@ -26,6 +26,8 @@
 - hosts: cao
   roles:
      - cao
+     - role: keyboxManaged
+       tags: keyboxManaged
 
 - hosts: mason
   roles:
