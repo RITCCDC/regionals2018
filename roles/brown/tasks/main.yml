@@ -53,13 +53,17 @@
   git:
     repo: https://github.com/skavanagh/KeyBox.git
     dest: /root/Keybox
+    force: yes
 
-- name: Set Keybox database password
-  lineinfile:
-    path: /root/Keybox/src/main/resources/KeyBoxConfig.properties
-    regexp: '^dbPassword='
-    line: 'dbPassword=password'
-    state: present
+- name: Send Keybox config
+  template:
+    src: KeyBoxConfig.properties
+    dest: /root/Keybox/src/main/resources
+
+- name: Generate SSH key for root/Keybox, if it doesn't exist
+  user:
+    name: root
+    generate_ssh_key: yes
 
 - name: Check if Keybox is running
   shell: pgrep -f Keybox

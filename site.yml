@@ -22,22 +22,27 @@
 - hosts: spade
   roles:
     - spade
+    - keyboxManaged
 
 - hosts: cao
   roles:
      - cao
+     - keyboxManaged
 
 - hosts: mason
   roles:
     - mason
+    - keyboxManaged
 
 - hosts: hammer
   roles:
     - hammer
+    - keyboxManaged
 
 - hosts: poirot
   roles:
     - poirot
+    - keyboxManaged
 
 - hosts: brown
   roles:
@@ -46,3 +51,4 @@
 - hosts: dupin
   roles:
     - dupin
+    - keyboxManaged
