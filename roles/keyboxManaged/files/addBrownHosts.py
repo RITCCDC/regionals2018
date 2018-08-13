@@ -10,6 +10,8 @@ parser = ArgumentParser('Add a host to SSH Keybox')
 parser.add_argument('-k', dest='host', help='the Brown host', required=True)
 parser.add_argument('-u', dest='username', help='the username for the Keybox web interface', required=True)
 parser.add_argument('-p', dest='password', help='the password for the Keybox web interface', required=True)
+parser.add_argument('-n', dest='name', help='the name of the system to add', required=True)
+parser.add_argument('-s', dest='system', help='the IP or hostname of the system to add', required=True)
 
 args = parser.parse_args()
 
@@ -32,9 +34,27 @@ usernameInput.send_keys(args.username)
 passwordInput.send_keys(args.password)
 submitButton.click()
 
+# Ignore a two factor auth setup warning
 skipOtpButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'btn-danger')))
 skipOtpButton.click()
 
+# Find and navigate to the Systems page. Need to do this because a CSRF token is embedded in the link.
 systemsPageButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, 'Systems')))
-
 driver.get(systemsPageButton.get_attribute('href'))
+
+# Check to see if the system is already present. If it's there, we're done. Else add it in.
+try:
+  existingSystem = driver.find_element(By.XPATH, "//div[text()='" + args.name + "']")
+  quit()
+except Exception as e:
+  # Open the Add System dialog
+  addSystemButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'add_btn')))
+  addSystemButton.click()
+
+  # Find the various inputs in the Add System dialog, fill out, and submit
+  displayNameField = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, 'hostSystem.displayNm')))
+  displayNameField.send_keys(args.name)
+  hostField = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, 'hostSystem.host')))
+  hostField.send_keys(args.system)
+  submitSystemButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'submit_btn')))
+  submitSystemButton.click()

@@ -9,3 +9,9 @@
   authorized_key:
     user: root
     key: "{{ lookup('file', '/tmp/sshkeybox.pub') }}"
+
+- name: Add the host to KeyBox using the Selenium script
+  shell: python3 addBrownHosts.py -k brown -u admin -p changeme -n {{ ansible_hostname }} -s {{ ansible_all_ipv4_addresses[0] }}
+  args:
+    chdir: "{{ role_path}}/files"
+  delegate_to: localhost
