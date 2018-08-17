@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
@@ -57,7 +58,12 @@ objectClassButton = driver.find_element_by_name('cacheRefreshForm:j_idt563:j_idt
 keyAttributeButton.click()
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'cacheRefreshForm:j_idt536:j_idt538:j_idt540:0:fInput')))
 keyAttributeField = driver.find_element_by_id('cacheRefreshForm:j_idt536:j_idt538:j_idt540:0:fInput')
-keyAttributeField.send_keys('sAMAccountName')
+# sAMAccountName
+keyAttributeField.send_keys('s')
+keyAttributeField.send_keys(Keys.SHIFT, 'AMA')
+keyAttributeField.send_keys('ccount')
+keyAttributeField.send_keys(Keys.SHIFT, 'N')
+keyAttributeField.send_keys('ame')
 
 # Add object class
 objectClassButton.click()
@@ -120,6 +126,8 @@ baseDNField.send_keys('CN=Users,DC=team4,DC=wildeagle,DC=local')
 # Open "change bind password" frame, input password twice
 changeBindPasswordLink.click()
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'bindPasswordDialogId:changePasswordForm:pass')))
+changeBindPasswordWindow = driver.find_element_by_id('bindPasswordDialogId:changePasswordModalPanel_container')
+changeBindPasswordWindow.click()
 newPasswordField = driver.find_element_by_id('bindPasswordDialogId:changePasswordForm:pass')
 newPasswordAgainField = driver.find_element_by_id('bindPasswordDialogId:changePasswordForm:conf')
 setPasswordButton = driver.find_element_by_id('bindPasswordDialogId:changePasswordForm:j_idt154')
