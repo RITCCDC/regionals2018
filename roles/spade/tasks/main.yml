@@ -1,4 +1,4 @@
-- name: Set file descriptor limits frequired by GLUU
+- name: Set file descriptor limits required by GLUU
   blockinfile:
     path: /etc/security/limits.conf
     insertbefore: '# End of file'
