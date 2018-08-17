@@ -30,16 +30,21 @@ WebDriverWait(driver, 30).until(EC.title_is('Gluu'))
 # Go to cache refresh page
 driver.get('https://spade/identity/organization/cacherefresh')
 
-# Find form elements for first tab
+# Find form elements for first tab, elements for tabs
 pollingInterval = driver.find_element_by_name('cacheRefreshForm:j_idt267:vdsCacheRefreshPollingIntervalId')
 serverIP = driver.find_element_by_name('cacheRefreshForm:j_idt278:cacheRefreshServerIpAddressId')
+cacheRefreshTab = driver.find_element_by_xpath('/html/body/div[1]/div/div/section[2]/div/form/div[1]/div/div[1]/ul/li[1]/a')
+backendKeyAttributesTab = driver.find_element_by_xpath('/html/body/div[1]/div/div/section[2]/div/form/div[1]/div/div[1]/ul/li[2]/a')
+sourceLDAPServersTab = driver.find_element_by_xpath('/html/body/div[1]/div/div/section[2]/div/form/div[1]/div/div[1]/ul/li[3]/a')
+
 
 # Populate first tab form data
 pollingInterval.send_keys('1')
+serverIP.clear()
 serverIP.send_keys('10.0.1.105')
 
 # Move to next tab
-driver.switch_to_window('key-attributes')
+backendKeyAttributesTab.click()
 
 # Find form elements for second tab
 keyAttributeButton = driver.find_element_by_name('cacheRefreshForm:j_idt536:j_idt538:j_idt550')
@@ -75,7 +80,7 @@ sourceAttribute4.send_keys('givenName')
 sourceAttribute5.send_keys('displayName')
 
 # Move to next tab
-driver.switch_to_window('ldap-servers')
+sourceLDAPServersTab.click()
 
 # Find form elements
 connectionName = driver.find_element_by_name('cacheRefreshForm:sourceConfigsId:0:j_idt632:name:j_idt637')
@@ -110,7 +115,7 @@ newPasswordAgainField.send_keys('Change.me!')
 setPasswordButton.click()
 
 # Move back to first tab
-driver.switch_to_window('cache-refresh')
+cacheRefreshTab.click()
 
 # Enable and update
 enabledDropdown = Select(driver.find_element_by_id('cacheRefreshForm:vdsCacheRefreshState:vdsCacheRefreshStateId'))
