@@ -40,11 +40,49 @@ cacheRefreshTab = driver.find_element_by_xpath('/html/body/div[1]/div/div/sectio
 backendKeyAttributesTab = driver.find_element_by_xpath('/html/body/div[1]/div/div/section[2]/div/form/div[1]/div/div[1]/ul/li[2]/a')
 sourceLDAPServersTab = driver.find_element_by_xpath('/html/body/div[1]/div/div/section[2]/div/form/div[1]/div/div[1]/ul/li[3]/a')
 
-
 # Populate first tab form data
 pollingInterval.send_keys('1')
 serverIP.clear()
 serverIP.send_keys('10.0.1.105')
+
+# Add source attribute mappings
+for i in xrange(5):
+    sourceAttributeMappingButton = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt252')
+    sourceAttributeMappingButton.click()
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'cacheRefreshForm:j_idt212:j_idt216:j_idt252')))
+    sleep(0.75)
+
+sourceMap1 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:0:fInput')
+destinationMap1 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:0:sInput1')
+sourceMap2 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:1:fInput')
+destinationMap2 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:1:sInput1')
+sourceMap3 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:2:fInput')
+destinationMap3 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:2:sInput1')
+sourceMap4 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:3:fInput')
+destinationMap4 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:3:sInput1')
+sourceMap5 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:4:fInput')
+destinationMap5 = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt218:4:sInput1')
+
+#sAMAccountName
+sourceMap1.send_keys('s')
+sourceMap1.send_keys(Keys.SHIFT, 'AMA')
+sourceMap1.send_keys('ccount')
+sourceMap1.send_keys(Keys.SHIFT, 'N')
+sourceMap1.send_keys('ame')
+destinationMap1.send_keys('uid')
+sourceMap2.send_keys('cn')
+destinationMap2.send_keys('cn')
+sourceMap3.send_keys('sn')
+destinationMap3.send_keys('sn')
+sourceMap4.send_keys('mail')
+destinationMap4.send_keys('mail')
+#givenName
+sourceMap5.send_keys('given')
+sourceMap5.send_keys(Keys.SHIFT, 'N')
+sourceMap5.send_keys('ame')
+destinationMap5.send_keys('given')
+destinationMap5.send_keys(Keys.SHIFT, 'N')
+destinationMap5.send_keys('ame')
 
 # Move to next tab
 backendKeyAttributesTab.click()
@@ -74,7 +112,7 @@ objectClassField.send_keys('user')
 # Add source attributes
 for i in xrange(5):
     sourceAttributesButton = driver.find_element_by_name('cacheRefreshForm:j_idt590:j_idt592:j_idt604')
-    ActionChains(driver).move_to_element(sourceAttributesButton).click().perform()
+    sourceAttributesButton.click()
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, 'cacheRefreshForm:j_idt590:j_idt592:j_idt604')))
     sleep(0.75)
 
@@ -125,7 +163,7 @@ baseDNField.send_keys('CN=Users,DC=team4,DC=wildeagle,DC=local')
 
 # Open "change bind password" frame, input password twice
 changeBindPasswordLink.click()
-WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'bindPasswordDialogId:changePasswordForm:pass')))
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'bindPasswordDialogId:changePasswordModalPanel_container')))
 changeBindPasswordWindow = driver.find_element_by_id('bindPasswordDialogId:changePasswordModalPanel_container')
 changeBindPasswordWindow.click()
 newPasswordField = driver.find_element_by_id('bindPasswordDialogId:changePasswordForm:pass')

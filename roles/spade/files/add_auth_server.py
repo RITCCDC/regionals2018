@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -50,7 +51,12 @@ updateAuthButton = driver.find_element_by_name('customAuthenticationForm:j_idt53
 nameField.send_keys('auth_ldap_server')
 bindDNField.send_keys('CN=GLUU,CN=Users,DC=team4,DC=wildeagle,DC=local')
 maxConnectionsAuth.send_keys('5')
-primaryKeyField.send_keys('sAMAccountName')
+# sAMAccountName
+primaryKeyField.send_keys('s')
+primaryKeyField.send_keys(Keys.SHIFT, 'AMA')
+primaryKeyField.send_keys('ccount')
+primaryKeyField.send_keys(Keys.SHIFT, 'N')
+primaryKeyField.send_keys('ame')
 localPrimaryKeyField.send_keys('uid')
 level.send_keys('0')
 
