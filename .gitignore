@@ -1,3 +1,4 @@
 *.retry
 jdk.rpm
 geckodriver.log
+screen.png

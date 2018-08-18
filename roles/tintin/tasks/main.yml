@@ -52,6 +52,9 @@
      state: absent
   when: dns_output.stderr.find("can't find") != -1
 
+- name: Add DNS forwarder
+  win_shell: Add-DnsServerForwarder -IPAddress 10.1.4.254
+
 # Return code on this command is non-zero if sam isn't in this domain, so
 # ignore errors on this task
 
@@ -81,3 +84,8 @@
      path: C:\users.csv
      state: absent
   when: user_output.rc != 0
+
+- name: Set Administrator password to never expire
+  win_domain_user:
+    name: Administrator
+    password_never_expires: yes
