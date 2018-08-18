@@ -84,3 +84,8 @@
      path: C:\users.csv
      state: absent
   when: user_output.rc != 0
+
+- name: Set Administrator password to never expire
+  win_domain_user:
+    name: Administrator
+    password_never_expires: yes
