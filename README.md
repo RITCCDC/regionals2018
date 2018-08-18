@@ -14,3 +14,5 @@ PS> winrm set winrm/config/service/auth '@{Basic="true"}'
 PS> winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 ```
 Make sure to run these commands as Administrator.
+
+These playbooks require [Selenium](https://pypi.org/project/selenium/) and [geckodriver](https://github.com/mozilla/geckodriver/releases).
