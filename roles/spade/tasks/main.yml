@@ -70,17 +70,18 @@
     chdir: "{{ role_path }}/files"
   delegate_to: localhost
   register: authConfigured
+  ignore_errors: yes
 
 - name: Integrate Gluu with Active Directory - cache refresh
   shell: python3 cache_refresh.py
   args:
     chdir: "{{ role_path }}/files"
   delegate_to: localhost
-  when: authConfigured == 1
+  when: authConfigured.rc == 1
 
 - name: Integrate Gluu with Active Directory - add AD as auth
   shell: python3 add_auth_server.py
   args:
     chdir: "{{ role_path }}/files"
   delegate_to: localhost
-  when: authConfigured == 1
+  when: authConfigured.rc == 1

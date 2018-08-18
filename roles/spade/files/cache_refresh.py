@@ -46,7 +46,7 @@ serverIP.clear()
 serverIP.send_keys('10.0.1.105')
 
 # Add source attribute mappings
-for i in xrange(5):
+for i in range(5):
     sourceAttributeMappingButton = driver.find_element_by_id('cacheRefreshForm:j_idt212:j_idt216:j_idt252')
     sourceAttributeMappingButton.click()
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'cacheRefreshForm:j_idt212:j_idt216:j_idt252')))
@@ -110,7 +110,7 @@ objectClassField = driver.find_element_by_id('cacheRefreshForm:j_idt563:j_idt565
 objectClassField.send_keys('user')
 
 # Add source attributes
-for i in xrange(5):
+for i in range(5):
     sourceAttributesButton = driver.find_element_by_name('cacheRefreshForm:j_idt590:j_idt592:j_idt604')
     sourceAttributesButton.click()
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, 'cacheRefreshForm:j_idt590:j_idt592:j_idt604')))
@@ -165,6 +165,7 @@ baseDNField.send_keys('CN=Users,DC=team4,DC=wildeagle,DC=local')
 changeBindPasswordLink.click()
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'bindPasswordDialogId:changePasswordModalPanel_container')))
 changeBindPasswordWindow = driver.find_element_by_id('bindPasswordDialogId:changePasswordModalPanel_container')
+driver.execute_script('arguments[0].scrollIntoView(true);', changeBindPasswordWindow)
 changeBindPasswordWindow.click()
 newPasswordField = driver.find_element_by_id('bindPasswordDialogId:changePasswordForm:pass')
 newPasswordAgainField = driver.find_element_by_id('bindPasswordDialogId:changePasswordForm:conf')
