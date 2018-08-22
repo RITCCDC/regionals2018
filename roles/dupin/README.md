@@ -1,0 +1,1 @@
+This role requires that the splunk RPM be downloaded in advance and transferred to the "files" directory. Name the file splunk.rpm

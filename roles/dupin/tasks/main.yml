@@ -1,0 +1,20 @@
+- name: Send Splunk RPM
+  copy:
+    src: splunk.rpm
+    dest: /tmp/splunk.rpm
+
+- name: Install Splunk
+  yum:
+    name: /tmp/splunk.rpm
+    disable_gpg_check: yes
+    state: present
+
+- name: Send Splunk initial admin password seed
+  template:
+    src: user-seed.conf
+    dest: /opt/splunk/etc/system/local/user-seed.conf
+    
+- name: Start Splunk
+  shell: ./splunk start --accept-license --answer-yes --no-prompt
+  args:
+    chdir: /opt/splunk/bin
