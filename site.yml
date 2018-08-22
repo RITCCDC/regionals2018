@@ -1,3 +1,7 @@
+- hosts: route53
+  roles:
+    - route53
+
 - hosts: tintin
   roles:
     - tintin
@@ -26,8 +30,8 @@
 
 - hosts: cao
   roles:
-     - cao
-     - keyboxManaged
+    - cao
+    - keyboxManaged
 
 - hosts: mason
   roles:
