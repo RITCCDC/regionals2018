@@ -13,8 +13,25 @@
   template:
     src: user-seed.conf
     dest: /opt/splunk/etc/system/local/user-seed.conf
+
+- name: Ensure that search local directory exists
+  file:
+    path: /opt/splunk/etc/apps/search/local
+    state: directory
+    owner: splunk
+    group: splunk
+
+- name: Send search inputs.conf
+  copy:
+    src: inputs.conf
+    dest: /opt/splunk/etc/apps/search/local/inputs.conf
     
 - name: Start Splunk
   shell: ./splunk start --accept-license --answer-yes --no-prompt
+  args:
+    chdir: /opt/splunk/bin
+
+- name: Start Splunk on boot
+  shell: ./splunk enable boot-start
   args:
     chdir: /opt/splunk/bin
