@@ -5,11 +5,12 @@
 - hosts: tintin
   roles:
     - tintin
+    - windowsSplunkMonitored
 
 - hosts: windows-clients
-
   roles:
     - windowsCommon
+    - windowsSplunkMonitored
 
 - hosts: linux
   roles:
@@ -18,6 +19,7 @@
 - hosts: holmes
   roles:
     - holmes
+    - windowsSplunkMonitored
 
 - hosts: gently
   roles:
