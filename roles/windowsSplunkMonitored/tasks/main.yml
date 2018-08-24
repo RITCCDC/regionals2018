@@ -1,0 +1,16 @@
+- name: Copy Splunk installer
+  win_copy:
+    src: splunk_forwarder.msi
+    dest: C:\splunk_forwarder.msi
+
+- name: Install Splunk Universal Forwarder
+  win_package:
+    path: C:\splunk_forwarder.msi
+    creates_service: SplunkForwarder
+    arguments: RECEIVING_INDEXER="10.0.0.103:9997" AGREETOLICENSE=Yes /quiet
+
+- name: Send Splunk config
+  win_template:
+    src: inputs.conf
+    dest: C:\Program Files\SplunkUniversalForwarder\etc\system\local\inputs.conf
+  notify: Restart Splunk Forwarder

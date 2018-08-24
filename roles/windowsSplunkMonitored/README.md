@@ -1,0 +1,1 @@
+This role requires the Splunk Universal forwarder to be added to the files directory as splunk_forwarder.msi
