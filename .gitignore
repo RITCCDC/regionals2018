@@ -3,3 +3,4 @@ jdk.rpm
 geckodriver.log
 screen.png
 splunk.rpm
+splunk_forwarder.*
