@@ -14,3 +14,11 @@
     name: firewalld
     state: stopped
     enabled: no
+
+- name: Forward syslog to Splunk
+  lineinfile:
+    path: '/etc/rsyslog.conf'
+    line: '*.* @@10.0.0.103:514'
+    insertbefore: '# ### end of the forwarding rule ###'
+  notify:
+    - Restart rsyslog

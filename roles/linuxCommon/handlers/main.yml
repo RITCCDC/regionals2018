@@ -7,3 +7,8 @@
   local_action:
     module: wait_for host={{ inventory_hostname }} port=22 state=started delay=30 timeout=60
   become: false
+
+- name: Restart rsyslog
+  service:
+    name: rsyslog
+    state: restarted
