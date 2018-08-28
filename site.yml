@@ -16,6 +16,10 @@
   roles:
     - linuxCommon
 
+- hosts: brown
+  roles:
+    - brown
+
 - hosts: holmes
   roles:
     - holmes
@@ -49,10 +53,6 @@
   roles:
     - poirot
     - keyboxManaged
-
-- hosts: brown
-  roles:
-    - brown
 
 - hosts: dupin
   roles:
