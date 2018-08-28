@@ -74,6 +74,10 @@ spMetadataFile.send_keys(args.metadataFile)
 usernameAttribute = driver.find_element_by_name('trustForm:j_idt368:0:j_idt371:32:j_idt373')
 usernameAttribute.click()
 
+# Release the email attribute to the SP
+emailAttribute = driver.find_element_by_name('trustForm:j_idt368:0:j_idt371:3:j_idt373')
+emailAttribute.click()
+
 # Submit the form
 addButton = driver.find_element_by_name('trustForm:j_idt605')
 addButton.click()
