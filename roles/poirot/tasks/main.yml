@@ -10,13 +10,15 @@
 
 # Add epel-release, pip, and docker-py. Needed for Ansible docker modules
 
-- name: Add epel-release and pip
+- name: Add epel-release
   yum:
-    pkg: "{{ item }}"
+    pkg: epel-release
     state: present
-  with_items:
-    - epel-release
-    - python-pip
+
+- name: Add pip
+  yum:
+    pkg: python-pip
+    state: present
 
 - name: Install docker-py with pip
   pip:
