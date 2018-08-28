@@ -1,3 +1,15 @@
+- name: Check if iRedMail is installed
+  uri:
+    url: https://mason/mail/index.php
+    validate_certs: no
+  delegate_to: localhost
+  register: return
+  ignore_errors: yes
+
+- name: End play if is installed
+  meta: end_play
+  when: return.status == 200
+
 - name: Download iRedMail package
   get_url:
     url: https://bitbucket.org/zhb/iredmail/downloads/iRedMail-0.9.8.tar.bz2
