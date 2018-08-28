@@ -1,3 +1,8 @@
+- name: Ensure that root SSH key exists
+  user:
+    name: root
+    generate_ssh_key: yes
+
 - name: Send JDK RPM
   copy:
     src: jdk.rpm
