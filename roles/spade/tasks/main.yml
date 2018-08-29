@@ -64,6 +64,16 @@
     - setup.properties.last
   delegate_to: gluuContainer
 
+- name: Wait for webserver to come up
+  uri:
+    url: "https://spade/identity"
+    status_code: 200
+    validate_certs: no
+  register: response_code
+  until: response_code.status == 200
+  retries: 60
+  delegate_to: localhost
+
 - name: Check if auth is already configured
   shell: python3 check_auth.py
   args:
