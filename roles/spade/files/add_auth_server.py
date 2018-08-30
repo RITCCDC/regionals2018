@@ -12,7 +12,7 @@ driver = webdriver.Firefox(capabilities=capabilities)
 driver.implicitly_wait(10)
 
 # Get the page, wait for login form to display
-driver.get('https://spade')
+driver.get('https://spade.team4.wildeagle.net')
 WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, 'loginForm:username')))
 
 # Find the login form elements
@@ -30,7 +30,7 @@ submitButton.click()
 WebDriverWait(driver, 30).until(EC.title_is('Gluu'))
 
 # Go to authentication page
-driver.get('https://spade/identity/authentication/configuration')
+driver.get('https://spade.team4.wildeagle.net/identity/authentication/configuration')
 
 # Populate authentication data
 addServerLink = driver.find_element_by_name('customAuthenticationForm:j_idt342')
