@@ -39,7 +39,7 @@ submitButton.click()
 WebDriverWait(driver, 30).until(EC.title_is('Gluu'))
 
 # Go to the trust relationship page
-driver.get('https://spade/identity/trustmanager/relationships')
+driver.get('https://' + args.host + '/identity/trustmanager/relationships')
 
 # Check to see if there is an existing relationship. If yes, close driver and exit. Else continue
 try:
@@ -49,7 +49,7 @@ try:
 except Exception as e:
   pass
 
-driver.get('https://spade/identity/trustmanager/add')
+driver.get('https://' + args.host + '/identity/trustmanager/add')
 
 # Find the form elements for a new trust relationship
 displayName = driver.find_element_by_name('trustForm:displayName:displayNameId')
