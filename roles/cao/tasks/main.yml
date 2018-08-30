@@ -98,7 +98,7 @@
   when: metadataPresent == False
 
 - name: Create SAML key, cert, and metadata
-  shell: /tmp/mellon_create_metadata.sh mellon_create_metadata.sh https://cao/mellon https://cao/mellon
+  shell: /tmp/mellon_create_metadata.sh mellon_create_metadata.sh https://cao.team4.wildeagle.net/mellon https://cao.team4.wildeagle.net/mellon
   args:
     chdir: /tmp
   when: metadataPresent == False
