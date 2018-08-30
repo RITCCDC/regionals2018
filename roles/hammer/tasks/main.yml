@@ -1,0 +1,14 @@
+- name: Transfer Nginx repo
+  copy:
+    src: nginx.repo
+    dest: /etc/yum.repos.d/nginx.repo
+
+- name: Install Nginx
+  yum:
+    name: nginx
+
+- name: Start Nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
