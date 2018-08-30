@@ -45,8 +45,6 @@ level = driver.find_element_by_name('customAuthenticationForm:sourceConfigsId:1:
 addServerAuthLink = driver.find_element_by_id('customAuthenticationForm:sourceConfigsId:1:j_idt163:j_idt248:j_idt250:j_idt262')
 baseDNAuthLink = driver.find_element_by_id('customAuthenticationForm:sourceConfigsId:1:j_idt163:j_idt275:j_idt277:j_idt289')
 changeBindPasswordAuthLink = driver.find_element_by_id('customAuthenticationForm:sourceConfigsId:1:j_idt163:j_idt302:j_idt303')
-activateButton = driver.find_element_by_id('customAuthenticationForm:sourceConfigsId:1:j_idt337')
-updateAuthButton = driver.find_element_by_name('customAuthenticationForm:j_idt539')
 
 nameField.send_keys('auth_ldap_server')
 bindDNField.send_keys('CN=GLUU,CN=Users,DC=team4,DC=wildeagle,DC=local')
@@ -83,8 +81,10 @@ newPasswordAgainAuthField.send_keys('Change.me!')
 setPasswordAuthButton.click()
 
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'customAuthenticationForm:sourceConfigsId:1:j_idt337')))
+activateButton = driver.find_element_by_id('customAuthenticationForm:sourceConfigsId:1:j_idt337')
 activateButton.click()
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, 'customAuthenticationForm:j_idt539')))
+updateAuthButton = driver.find_element_by_name('customAuthenticationForm:j_idt539')
 updateAuthButton.click()
 
 # Close driver and exit
