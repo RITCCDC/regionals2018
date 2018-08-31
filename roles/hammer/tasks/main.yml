@@ -12,3 +12,55 @@
     name: nginx
     state: started
     enabled: yes
+
+- name: Add epel-release
+  yum:
+    pkg: epel-release
+    state: present
+
+- name: Add pip
+  yum:
+    pkg: python-pip
+    state: present
+
+- name: Install pyOpenSSL
+  pip:
+    name: pyOpenSSL
+    state: present
+
+- name: Create directory for certs, keys, and CSRs
+  file:
+    path: /etc/nginx/certs
+    state: directory  
+
+- name: Generate keys
+  openssl_privatekey:
+    path: /etc/nginx/certs/{{ item.host }}.key
+  with_items: "{{ sites }}"
+
+- name: Generate CSRs
+  openssl_csr:
+    common_name: "{{ item.fqdn }}"
+    privatekey_path: /etc/nginx/certs/{{ item.host }}.key
+    path: /etc/nginx/certs/{{ item.host }}.csr
+  with_items: "{{ sites }}"
+
+- name: Generate self-signed certs
+  openssl_certificate:
+    path: /etc/nginx/certs/{{ item.host }}.pem
+    privatekey_path: /etc/nginx/certs/{{ item.host }}.key
+    csr_path: /etc/nginx/certs/{{ item.host }}.csr
+    provider: selfsigned
+  with_items: "{{ sites }}"
+  notify: Restart Nginx
+
+- name: Copy config files
+  template:
+    src: "{{ item }}"
+    dest: /etc/nginx/conf.d/{{ item }}
+  with_items:
+    - spade.conf
+    - cao.conf
+    - poirot.conf
+    - mason.conf
+  notify: Restart Nginx
