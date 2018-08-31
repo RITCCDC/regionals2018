@@ -98,7 +98,7 @@
   when: metadataPresent == False
 
 - name: Create SAML key, cert, and metadata
-  shell: /tmp/mellon_create_metadata.sh mellon_create_metadata.sh https://cao/mellon https://cao/mellon
+  shell: /tmp/mellon_create_metadata.sh mellon_create_metadata.sh https://cao.team4.wildeagle.net/mellon https://cao.team4.wildeagle.net/mellon
   args:
     chdir: /tmp
   when: metadataPresent == False
@@ -139,7 +139,7 @@
 
 
 - name: Upload metadata to Gluu server
-  shell: python3 addCaoSAML.py -g spade -u admin -p password -n cao -d OTRS -f /tmp/cao_metadata.xml
+  shell: python3 addCaoSAML.py -g spade.team4.wildeagle.net -u admin -p password -n cao -d OTRS -f /tmp/cao_metadata.xml
   args:
     chdir: "{{ role_path }}/files"
   delegate_to: localhost

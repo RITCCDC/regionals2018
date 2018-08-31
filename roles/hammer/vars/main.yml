@@ -1,0 +1,4 @@
+sites:
+  - { fqdn: cao.team4.wildeagle.net, host: cao }
+  - { fqdn: mason.team4.wildeagle.net, host: mason}
+  - { fqdn: spade.team4.wildeagle.net, host: spade}

@@ -12,7 +12,7 @@ driver = webdriver.Firefox(capabilities=capabilities)
 driver.implicitly_wait(10)
 
 # Get the page, wait for login form to display
-driver.get('https://spade')
+driver.get('https://spade.team4.wildeagle.net')
 WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, 'loginForm:username')))
 
 # Find the login form elements

@@ -13,7 +13,7 @@ driver = webdriver.Firefox(capabilities=capabilities)
 driver.implicitly_wait(10)
 
 # Get the page, wait for login form to display
-driver.get('https://spade')
+driver.get('https://spade.team4.wildeagle.net')
 WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, 'loginForm:username')))
 
 # Find the login form elements
@@ -31,7 +31,7 @@ submitButton.click()
 WebDriverWait(driver, 30).until(EC.title_is('Gluu'))
 
 # Go to cache refresh page
-driver.get('https://spade/identity/organization/cacherefresh')
+driver.get('https://spade.team4.wildeagle.net/identity/organization/cacherefresh')
 
 # Find form elements for first tab, elements for tabs
 pollingInterval = driver.find_element_by_name('cacheRefreshForm:j_idt267:vdsCacheRefreshPollingIntervalId')
