@@ -1,0 +1,15 @@
+- name: Check if PAN-OS has booted
+  panos_check:
+    ip_address: "10.0.1.254"
+    password: "admin"
+  register: result
+  until: not result is failed
+  retries: 10
+  delay: 30
+
+- name: Set new password
+  panos_admpwd:
+    ip_address: "10.0.1.254"
+    password: "admin"
+    key_filename: "/root/.ssh/id_rsa"
+    newpassword: "Change.me!"

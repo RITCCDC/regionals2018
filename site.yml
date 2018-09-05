@@ -28,6 +28,9 @@
 - hosts: gently
   roles:
     - gently
+    - PaloAltoNetworks.paloaltonetworks
+  connection: local
+  gather_facts: False
 
 - hosts: spade
   roles:
