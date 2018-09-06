@@ -45,6 +45,7 @@ driver.get(systemsPageButton.get_attribute('href'))
 # Check to see if the system is already present. If it's there, we're done. Else add it in.
 try:
   existingSystem = driver.find_element(By.XPATH, "//div[text()='" + args.name + "']")
+  driver.close()
   quit()
 except Exception as e:
   # Open the Add System dialog
@@ -58,3 +59,5 @@ except Exception as e:
   hostField.send_keys(args.system)
   submitSystemButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'submit_btn')))
   submitSystemButton.click()
+  driver.close()
+  quit()
