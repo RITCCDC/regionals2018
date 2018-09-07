@@ -47,4 +47,10 @@
   shell: 'sleep 1 && reboot && sleep 1'
   async: 1
   poll: 0
-  when: iredmail_install.rc == 0 && return.status != 200
+  when: (iredmail_install.rc is defined and iredmail_install.rc == 0) and return.status != 200
+
+- name: Wait for reboot
+  local_action:
+    module: wait_for host={{ inventory_hostname }} port=22 state=started delay=30 timeout=60
+  become: false
+  when: (iredmail_install.rc is defined and iredmail_install.rc == 0) and return.status != 200
