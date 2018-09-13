@@ -4,6 +4,15 @@
     ipv4_addresses:
       - 10.1.4.10
 
+- name: Rename hostname
+  win_hostname:
+    name: {{ ansible_host }}
+  register: hostname_reboot
+
+- name: Reboot host if necessary
+  win_reboot:
+  when: hostname_reboot == true
+
 - name: Join host to domain
   win_domain_membership:
     dns_domain_name: team4.wildeagle.local
