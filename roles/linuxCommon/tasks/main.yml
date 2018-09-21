@@ -2,6 +2,11 @@
   hostname:
     name: "{{ ansible_host }}"
 
+- name: Transfer hosts file
+  template:
+    src: hosts
+    dest: /etc/hosts
+
 - name: Disable SELinux
   selinux:
     state: disabled

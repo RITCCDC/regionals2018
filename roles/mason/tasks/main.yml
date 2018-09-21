@@ -6,43 +6,51 @@
   register: return
   ignore_errors: yes
 
-- name: End play if is installed
-  meta: end_play
-  when: return.status == 200
-
 - name: Download iRedMail package
   get_url:
     url: https://bitbucket.org/zhb/iredmail/downloads/iRedMail-0.9.8.tar.bz2
     dest: /tmp/iRedMail-0.9.8.tar.bz2
+  when: return.status != 200
 
 - name: Make sure bzip2 is installed
   yum: name=bzip2 state=installed
+  when: return.status != 200
 
 - name: Extract archive
   unarchive:
     src: /tmp/iRedMail-0.9.8.tar.bz2
     dest: /tmp
     remote_src: yes
+  when: return.status != 200
 
 - name: Copy install config
   copy:
     src: ../files/config
     dest: /tmp/iRedMail-0.9.8/config
     mode: 0644
+  when: return.status != 200
 
 - name: Set permissions on install script
   file:
     path: "/tmp/iRedMail-0.9.8/iRedMail.sh"
     mode: 0700
+  when: return.status != 200
 
 - name: Install iRedMail
   shell: "IREDMAIL_DEBUG='NO' AUTO_USE_EXISTING_CONFIG_FILE=y AUTO_INSTALL_WITHOUT_CONFIRM=y bash iRedMail.sh"
   args:
     chdir: "/tmp/iRedMail-0.9.8"
   register: iredmail_install
+  when: return.status != 200
 
 - name: Reboot server so all iRedMail services come up
   shell: 'sleep 1 && reboot && sleep 1'
   async: 1
   poll: 0
-  when: iredmail_install.rc == 0
+  when: (iredmail_install.rc is defined and iredmail_install.rc == 0) and return.status != 200
+
+- name: Wait for reboot
+  local_action:
+    module: wait_for host={{ inventory_hostname }} port=22 state=started delay=30 timeout=60
+  become: false
+  when: (iredmail_install.rc is defined and iredmail_install.rc == 0) and return.status != 200
