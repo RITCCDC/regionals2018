@@ -15,4 +15,8 @@ PS> winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 ```
 Make sure to run these commands as Administrator.
 
-These playbooks require [Selenium](https://pypi.org/project/selenium/) and [geckodriver](https://github.com/mozilla/geckodriver/releases).
+These playbooks require [Selenium](https://pypi.org/project/selenium/), [geckodriver](https://github.com/mozilla/geckodriver/releases), [pan-python](https://pypi.org/project/pan-python/), and [pandevice](https://pypi.org/project/pandevice/).
+
+In order to configure the Palo Alto firewall, the PAN Ansible role must be installed. This can be done with this command:
+
+`ansible-galaxy install PaloAltoNetworks.paloaltonetworks`

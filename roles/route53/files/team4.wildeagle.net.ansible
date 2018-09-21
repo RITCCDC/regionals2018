@@ -6,7 +6,7 @@
                                            3H )        ; minimum
           IN   NS   route-53.team4.wildeagle.net.
 route-53       A    10.1.4.253
-gently         A    10.0.0.100
+gently         A    172.16.2.252
 hammer         A    10.0.0.101
 brown          A    10.0.0.102
 dupin          A    10.0.0.103
