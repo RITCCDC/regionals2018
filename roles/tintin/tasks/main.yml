@@ -1,3 +1,12 @@
+- name: Rename hostname
+  win_hostname:
+    name: "{{ hostname }}"
+  register: hostname_reboot
+
+- name: Reboot host if necessary
+  win_reboot:
+  when: hostname_reboot.reboot_required == true
+
 - name: Install Active Directory
   win_feature:
     name: AD-Domain-Services
