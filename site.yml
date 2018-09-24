@@ -65,3 +65,7 @@
 - hosts: marple
   roles:
     - marple
+
+- hosts: tracy
+  roles:
+    - tracy
