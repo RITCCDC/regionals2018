@@ -6,7 +6,7 @@
 
 - name: Rename hostname
   win_hostname:
-    name: "{{ hostname}}"
+    name: "{{ ansible_host }}"
   register: hostname_reboot
 
 - name: Reboot host if necessary
