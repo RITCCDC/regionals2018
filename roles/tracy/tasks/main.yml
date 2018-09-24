@@ -1,0 +1,24 @@
+- name: Install FTP server
+  package:
+    name: vsftpd
+    state: present
+
+- name: Start and enable FTP server
+  service:
+    name: vsftpd
+    state: started
+    enabled: yes
+
+- name: Remove default for anonymous login
+  lineinfile:
+    line: anonymous_enable=NO
+    path: /etc/vsftpd.conf
+    state: absent
+  notify: Restart vsftpd
+
+- name: Enable anonymous login
+  lineinfile:
+    line: anonymous_enable=YES
+    path: /etc/vsftpd.conf
+    state: present
+  notify: Restart vsftpd
