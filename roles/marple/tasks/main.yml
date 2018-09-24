@@ -1,0 +1,10 @@
+- name: Install Apache
+  package:
+    name: apache2
+    state: present
+
+- name: Start and enable Apache
+  service:
+    name: apache2
+    state: started
+    enabled: yes
