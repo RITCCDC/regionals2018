@@ -95,3 +95,10 @@
     chdir: "{{ role_path }}/files"
   delegate_to: localhost
   when: authConfigured.rc == 1
+
+- name: Reboot host
+  command: reboot
+  async: 0
+  poll: 0
+  ignore_errors: true
+  when: authConfigured.rc == 1
