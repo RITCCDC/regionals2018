@@ -97,8 +97,7 @@
   when: authConfigured.rc == 1
 
 - name: Reboot host
-  command: reboot
-  async: 0
+  command: sleep 2 && reboot
+  async: 1
   poll: 0
-  ignore_errors: true
   when: authConfigured.rc == 1
