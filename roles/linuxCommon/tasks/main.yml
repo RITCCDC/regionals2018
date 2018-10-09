@@ -25,7 +25,7 @@
 - name: Forward syslog to Splunk
   lineinfile:
     path: '/etc/rsyslog.conf'
-    line: '*.* @@10.0.0.103:514'
+    line: '*.* @@10.10{{team_number}}.0.103:514'
     insertbefore: '# ### end of the forwarding rule ###'
   notify:
     - Restart rsyslog
