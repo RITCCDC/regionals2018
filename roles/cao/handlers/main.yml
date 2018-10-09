@@ -9,7 +9,7 @@
     state: restarted
 
 - name: Copy OTRS DB Dump
-  copy:
+  template:
     src: otrs.sql
     dest: /tmp/otrs.sql
 
