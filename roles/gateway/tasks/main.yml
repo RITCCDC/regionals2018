@@ -1,6 +1,6 @@
 - name: Copy config to /tmp
-  copy:
-    src: ../files/config.xml
+  template:
+    src: ../templates/config.xml
     dest: /tmp/config.xml
 
 - name: Upload PAN config
