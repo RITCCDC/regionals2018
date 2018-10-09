@@ -2,6 +2,20 @@
   roles:
     - route53
 
+- hosts: gently
+  roles:
+    - PaloAltoNetworks.paloaltonetworks
+    - gently
+  connection: local
+  gather_facts: False
+
+- hosts: gateway
+  roles:
+    - PaloAltoNetworks.paloaltonetworks
+    - gateway
+  connection: local
+  gather_facts: False
+
 - hosts: tintin
   roles:
     - tintin
@@ -25,13 +39,6 @@
     - windowsCommon
     - holmes
     - windowsSplunkMonitored
-
-- hosts: gently
-  roles:
-    - gently
-    - PaloAltoNetworks.paloaltonetworks
-  connection: local
-  gather_facts: False
 
 - hosts: spade
   roles:
