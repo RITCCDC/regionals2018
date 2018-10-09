@@ -4,3 +4,4 @@ geckodriver.log
 screen.png
 splunk.rpm
 splunk_forwarder.*
+.DS_Store
