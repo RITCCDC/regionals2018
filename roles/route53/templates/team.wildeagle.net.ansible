@@ -1,0 +1,16 @@
+@         IN   SOA  team{{item}}.wildeagle.net.     root.team{{item}}.wildeagle.net. (
+                                           1808221212  ; serial
+                                           1D          ; refresh
+                                           1H          ; retry
+                                           1W          ; expire
+                                           3H )        ; minimum
+          IN   NS   route-53.team{{item}}.wildeagle.net.
+route-53       A    172.16.3.1
+gently         A    172.16.2.{{item}}
+hammer         A    10.10{{item}}.0.101
+brown          A    10.10{{item}}.0.102
+dupin          A    10.10{{item}}.0.103
+cao            A    10.10{{item}}.1.103
+mason          A    10.10{{item}}.1.104
+spade          A    10.10{{item}}.1.105
+poirot         A    10.10{{item}}.1.107
