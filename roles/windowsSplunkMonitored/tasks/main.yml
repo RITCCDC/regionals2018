@@ -7,7 +7,7 @@
   win_package:
     path: C:\splunk_forwarder.msi
     creates_service: SplunkForwarder
-    arguments: RECEIVING_INDEXER="10.0.0.103:9997" AGREETOLICENSE=Yes /quiet
+    arguments: "RECEIVING_INDEXER=10.10{{team_number}}.0.103:9997 AGREETOLICENSE=Yes /quiet"
 
 - name: Send Splunk config
   win_template:
