@@ -1,15 +1,15 @@
-@         IN   SOA       team4.wildeagle.net.     root.team4.wildeagle.net. (
+@         IN   SOA       team{{item}}.wildeagle.net.     root.team{{item}}.wildeagle.net. (
                                            1808221212  ; serial
                                            1D          ; refresh
                                            1H          ; retry
                                            1W          ; expire
                                            3H )        ; minimum
-          IN   NS        route-53.team4.wildeagle.net.
-route-53       A         10.1.4.253
-gently         A         172.16.2.252
-hammer         A         10.0.0.101
-brown          A         10.0.0.102
-dupin          A         10.0.0.103
+          IN   NS        route-53.team{{item}}.wildeagle.net.
+route-53       A         172.16.3.1
+gently         A         172.16.2.{{item}}
+hammer         A         10.10{{item}}.0.101
+brown          A         10.10{{item}}.0.102
+dupin          A         10.10{{item}}.0.103
 cao            CNAME     hammer
 mason          CNAME     hammer
 spade          CNAME     hammer

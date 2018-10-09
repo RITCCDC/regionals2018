@@ -3,29 +3,31 @@
     name: bind
     state: present
 
-- name: Copy configuration file
-  copy:
-    src: ../files/named.conf
+- name: Template configuration file
+  template:
+    src: ../templates/named.conf
     dest: /etc/named.conf
     owner: root
     group: named
     mode: 0640
 
-- name: Copy client zone file
-  copy:
-    src: ../files/team4.wildeagle.net
-    dest: /var/named/team4.wildeagle.net
+- name: Template client zone file
+  template:
+    src: ../templates/team.wildeagle.net
+    dest: /var/named/team{{item}}.wildeagle.net
     owner: root
     group: named
     mode: 0640
+  loop: "{{ range (1, total_teams+1)|list }}"
 
 - name: Copy ansible zone file
-  copy:
-    src: ../files/team4.wildeagle.net.ansible
-    dest: /var/named/team4.wildeagle.net.ansible
+  template:
+    src: ../templates/team.wildeagle.net.ansible
+    dest: /var/named/team{{item}}.wildeagle.net.ansible
     owner: root
     group: named
     mode: 0640
+  loop: "{{ range (1, total_teams+1)|list }}"
 
 - name: Restart and enable named
   systemd:
