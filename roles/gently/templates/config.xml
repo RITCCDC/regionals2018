@@ -3,7 +3,7 @@
   <mgt-config>
     <users>
       <entry name="admin">
-        <phash>fnRL/G5lXVMug</phash>
+        <phash>$1$nbqsqypb$SgoPtT1a0MLbQx0RrqNng.</phash>
         <permissions>
           <role-based>
             <superuser>yes</superuser>
@@ -68,17 +68,14 @@
         <scheduled>yes</scheduled>
       </report>
     </botnet>
-  </shared>
-  <devices>
+</shared>
+<devices>
     <entry name="localhost.localdomain">
       <network>
         <interface>
           <ethernet>
             <entry name="ethernet1/1">
               <layer3>
-                <ip>
-                  <entry name="172.16.1.1/24"/>
-                </ip>
                 <ipv6>
                   <neighbor-discovery>
                     <router-advertisement>
@@ -92,26 +89,23 @@
                 <lldp>
                   <enable>no</enable>
                 </lldp>
+                <ip>
+                  <entry name="172.16.2.{{team_number}}/24"/>
+                </ip>
               </layer3>
             </entry>
             <entry name="ethernet1/2">
               <layer3>
-                <ipv6>
-                  <neighbor-discovery>
-                    <router-advertisement>
-                      <enable>no</enable>
-                    </router-advertisement>
-                  </neighbor-discovery>
-                </ipv6>
-                <ndp-proxy>
-                  <enabled>no</enabled>
-                </ndp-proxy>
                 <ip>
-                  <entry name="10.1.1.1/24"/>
+                  <entry name="10.10{{team_number}}.0.254/24"/>
                 </ip>
-                <lldp>
-                  <enable>no</enable>
-                </lldp>
+              </layer3>
+            </entry>
+            <entry name="ethernet1/3">
+              <layer3>
+                <ip>
+                  <entry name="10.10{{team_number}}.1.254/24"/>
+                </ip>
               </layer3>
             </entry>
           </ethernet>
@@ -292,10 +286,6 @@
                 <enable>no</enable>
               </ospfv3>
             </protocol>
-            <interface>
-              <member>ethernet1/1</member>
-              <member>ethernet1/2</member>
-            </interface>
             <ecmp>
               <algorithm>
                 <ip-modulo/>
@@ -304,14 +294,14 @@
             <routing-table>
               <ip>
                 <static-route>
-                  <entry name="default">
+                  <entry name="Default">
                     <path-monitor>
                       <enable>no</enable>
                       <failure-condition>any</failure-condition>
                       <hold-time>2</hold-time>
                     </path-monitor>
                     <nexthop>
-                      <ip-address>172.16.1.254</ip-address>
+                      <ip-address>172.16.2.254</ip-address>
                     </nexthop>
                     <bfd>
                       <profile>None</profile>
@@ -325,6 +315,11 @@
                 </static-route>
               </ip>
             </routing-table>
+            <interface>
+              <member>ethernet1/1</member>
+              <member>ethernet1/2</member>
+              <member>ethernet1/3</member>
+            </interface>
           </entry>
         </virtual-router>
       </network>
@@ -345,31 +340,20 @@
               </recurring>
             </threats>
           </update-schedule>
+          <timezone>US/Eastern</timezone>
           <service>
             <disable-telnet>yes</disable-telnet>
             <disable-http>yes</disable-http>
           </service>
-          <hostname>PA-VM</hostname>
-          <timezone>US/Eastern</timezone>
-          <ip-address>10.1.1.2</ip-address>
+          <hostname>gently.team4.wildeagle.net</hostname>
           <netmask>255.255.255.0</netmask>
-          <default-gateway>10.1.1.1</default-gateway>
+          <default-gateway>172.16.2.254</default-gateway>
+          <ip-address>172.16.2.1{{team_number}}</ip-address>
           <dns-setting>
             <servers>
-              <primary>8.8.8.8</primary>
-              <secondary>8.8.4.4</secondary>
+              <primary>172.16.3.1</primary>
             </servers>
           </dns-setting>
-          <route>
-            <service>
-              <entry name="paloalto-networks-services">
-                <source>
-                  <address>172.16.1.1/24</address>
-                  <interface>ethernet1/1</interface>
-                </source>
-              </entry>
-            </service>
-          </route>
         </system>
         <setting>
           <config>
@@ -386,13 +370,6 @@
           <application/>
           <application-group/>
           <zone>
-            <entry name="Internal">
-              <network>
-                <layer3>
-                  <member>ethernet1/2</member>
-                </layer3>
-              </network>
-            </entry>
             <entry name="Internet">
               <network>
                 <layer3>
@@ -400,45 +377,76 @@
                 </layer3>
               </network>
             </entry>
+            <entry name="AWS Public">
+              <network>
+                <layer3>
+                  <member>ethernet1/2</member>
+                </layer3>
+              </network>
+            </entry>
+            <entry name="AWS Private">
+              <network>
+                <layer3>
+                  <member>ethernet1/3</member>
+                </layer3>
+              </network>
+            </entry>
           </zone>
-          <service/>
+          <service>
+            <entry name="service-ssh">
+              <protocol>
+                <tcp>
+                  <port>22</port>
+                  <override>
+                    <no/>
+                  </override>
+                </tcp>
+              </protocol>
+            </entry>
+            <entry name="service-smtp">
+              <protocol>
+                <tcp>
+                  <port>25</port>
+                  <override>
+                    <no/>
+                  </override>
+                </tcp>
+              </protocol>
+            </entry>
+            <entry name="service-pop3">
+              <protocol>
+                <tcp>
+                  <port>110</port>
+                  <override>
+                    <no/>
+                  </override>
+                </tcp>
+              </protocol>
+            </entry>
+            <entry name="service-splunk">
+              <protocol>
+                <tcp>
+                  <port>8000</port>
+                  <override>
+                    <no/>
+                  </override>
+                </tcp>
+              </protocol>
+            </entry>
+          </service>
           <service-group/>
           <schedule/>
           <rulebase>
             <default-security-rules>
-              <rules>
-                <entry name="interzone-default">
-                  <action>allow</action>
-                  <log-start>no</log-start>
-                  <log-end>no</log-end>
-                </entry>
-              </rules>
+              <rules/>
             </default-security-rules>
             <nat>
               <rules>
-                <entry name="Local">
-                  <to>
-                    <member>Internet</member>
-                  </to>
-                  <from>
-                    <member>Internal</member>
-                  </from>
-                  <source>
-                    <member>any</member>
-                  </source>
-                  <destination>
-                    <member>10.0.0.0/24</member>
-                    <member>172.16.1.0/24</member>
-                    <member>172.16.2.0/24</member>
-                    <member>172.16.3.0/24</member>
-                  </destination>
-                  <service>any</service>
-                </entry>
-                <entry name="Internet">
+                <entry name="NAT to Internet">
                   <source-translation>
                     <dynamic-ip-and-port>
                       <interface-address>
-                        <ip>172.16.1.1/24</ip>
+                        <ip>172.16.2.{{team_number}}/24</ip>
                         <interface>ethernet1/1</interface>
                       </interface-address>
                     </dynamic-ip-and-port>
@@ -447,7 +455,8 @@
                     <member>Internet</member>
                   </to>
                   <from>
-                    <member>Internal</member>
+                    <member>AWS Private</member>
+                    <member>AWS Public</member>
                   </from>
                   <source>
                     <member>any</member>
@@ -457,25 +466,77 @@
                   </destination>
                   <service>any</service>
                 </entry>
-              </rules>
-            </nat>
-            <security>
-              <rules>
-                <entry name="White team">
+                <entry name="Internet to Public">
+                  <source-translation>
+                    <dynamic-ip-and-port>
+                      <interface-address>
+                        <interface>ethernet1/2</interface>
+                      </interface-address>
+                    </dynamic-ip-and-port>
+                  </source-translation>
                   <to>
-                    <member>Internet</member>
+                    <member>AWS Public</member>
                   </to>
                   <from>
-                    <member>Internal</member>
+                    <member>Internet</member>
                   </from>
                   <source>
                     <member>any</member>
                   </source>
                   <destination>
-                    <member>10.0.0.0/24</member>
-                    <member>172.16.1.0/24</member>
-                    <member>172.16.2.0/24</member>
-                    <member>172.16.3.0/24</member>
+                    <member>any</member>
+                  </destination>
+                  <service>any</service>
+                  <disabled>no</disabled>
+                </entry>
+              </rules>
+            </nat>
+            <security>
+              <rules>
+                <entry name="White Team to Everything">
+                  <to>
+                    <member>AWS Private</member>
+                    <member>AWS Public</member>
+                  </to>
+                  <from>
+                    <member>Internet</member>
+                  </from>
+                  <source>
+                    <member>White Team</member>
+                  </source>
+                  <destination>
+                    <member>any</member>
+                  </destination>
+                  <source-user>
+                    <member>any</member>
+                  </source-user>
+                  <category>
+                    <member>any</member>
+                  </category>
+                  <application>
+                    <member>any</member>
+                  </application>
+                  <service>
+                    <member>any</member>
+                  </service>
+                  <hip-profiles>
+                    <member>any</member>
+                  </hip-profiles>
+                  <action>allow</action>
+                  <description>This is a legitimate white team rule. Do not delete or modify this.</description>
+                </entry>
+                <entry name="Internet to Public">
+                  <to>
+                    <member>AWS Public</member>
+                  </to>
+                  <from>
+                    <member>Internet</member>
+                  </from>
+                  <source>
+                    <member>any</member>
+                  </source>
+                  <destination>
+                    <member>any</member>
                   </destination>
                   <source-user>
                     <member>any</member>
@@ -494,17 +555,52 @@
                   </hip-profiles>
                   <action>allow</action>
                 </entry>
+                <entry name="AWS to Internet">
+                  <to>
+                    <member>Internet</member>
+                  </to>
+                  <from>
+                    <member>AWS Private</member>
+                    <member>AWS Public</member>
+                  </from>
+                  <source>
+                    <member>any</member>
+                  </source>
+                  <destination>
+                    <member>any</member>
+                  </destination>
+                  <source-user>
+                    <member>any</member>
+                  </source-user>
+                  <category>
+                    <member>any</member>
+                  </category>
+                  <application>
+                    <member>any</member>
+                  </application>
+                  <service>
+                    <member>application-default</member>
+                  </service>
+                  <hip-profiles>
+                    <member>any</member>
+                  </hip-profiles>
+                  <action>allow</action>
+                </entry>
               </rules>
             </security>
           </rulebase>
           <import>
             <network>
               <interface>
-                <member>ethernet1/2</member>
                 <member>ethernet1/1</member>
               </interface>
             </network>
           </import>
+          <address>
+            <entry name="White Team">
+              <ip-netmask>172.16.3.0/24</ip-netmask>
+            </entry>
+          </address>
         </entry>
       </vsys>
     </entry>

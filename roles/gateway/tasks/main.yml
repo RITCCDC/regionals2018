@@ -1,11 +1,11 @@
 - name: Copy config to /tmp
-  copy:
-    src: ../files/config.xml
+  template:
+    src: ../templates/config.xml
     dest: /tmp/config.xml
 
 - name: Upload PAN config
   panos_import:
-    ip_address: 172.16.1.1
+    ip_address: "172.16.1.{{ team_number }}"
     password: "admin"
     file: /tmp/config.xml
     category: "configuration"
@@ -14,10 +14,15 @@
 
 - name: Load configuration
   panos_loadcfg:
-    ip_address: 172.16.1.1
+    ip_address: "172.16.1.{{ team_number }}"
     password: "admin"
     file: "{{upload_result.filename}}"
   environment:
     PYTHONHTTPSVERIFY: 0
   async: 1
   poll: 0
+
+- name: Delete config from /tmp
+  file:
+    path: /tmp/config.xml
+    state: absent
