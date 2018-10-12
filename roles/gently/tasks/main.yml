@@ -1,7 +1,15 @@
+- name: Try to reach PAN
+  panos_check:
+    ip_address: "172.16.2.1{{ team_number }}"
+    password: "admin"
+  register: auth_check
+  ignore_errors: yes
+
 - name: Copy config to /tmp
   template:
     src: ../templates/config.xml
     dest: /tmp/config.xml
+  when: auth_check is not failed
 
 - name: Upload PAN config
   panos_import:
@@ -11,6 +19,7 @@
     category: "configuration"
     validate_certs: no
   register: upload_result
+  when: auth_check is not failed
 
 - name: Load configuration
   panos_loadcfg:
@@ -19,13 +28,16 @@
     file: "{{upload_result.filename}}"
   environment:
     PYTHONHTTPSVERIFY: 0
+  when: auth_check is not failed
 
 - name: Reboot PAN
   panos_restart:
     ip_address: "172.16.2.1{{ team_number }}"
     password: "admin"
+  when: auth_check is not failed
 
 - name: Delete config from /tmp
   file:
     path: /tmp/config.xml
     state: absent
+  when: auth_check is not failed
