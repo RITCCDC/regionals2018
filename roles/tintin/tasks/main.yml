@@ -20,7 +20,7 @@
 
 - name: Ensure domain exists
   win_domain:
-     dns_domain_name: team4.wildeagle.local
+     dns_domain_name: "team{{ team_number }}.wildeagle.local"
      safe_mode_password: Change.me!
   register: domain_result
 
