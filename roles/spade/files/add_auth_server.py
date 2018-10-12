@@ -4,6 +4,16 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
+from sys import argv
+
+# Get team number from a command line argument
+
+if len(argv) != 2:
+  exit(1)
+
+teamNumber = argv[1]
+
+siteURL = "https://spade.team" + teamNumber + ".wildeagle.net"
 
 # Set up driver, allow unverified TLS certs
 capabilities = webdriver.DesiredCapabilities().FIREFOX
@@ -12,7 +22,7 @@ driver = webdriver.Firefox(capabilities=capabilities)
 driver.implicitly_wait(10)
 
 # Get the page, wait for login form to display
-driver.get('https://spade.team4.wildeagle.net')
+driver.get(siteURL)
 WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, 'loginForm:username')))
 
 # Find the login form elements
@@ -30,7 +40,7 @@ submitButton.click()
 WebDriverWait(driver, 30).until(EC.title_is('Gluu'))
 
 # Go to authentication page
-driver.get('https://spade.team4.wildeagle.net/identity/authentication/configuration')
+driver.get(siteURL + "/identity/authentication/configuration")
 
 # Populate authentication data
 addServerLink = driver.find_element_by_name('customAuthenticationForm:j_idt342')
@@ -47,7 +57,8 @@ baseDNAuthLink = driver.find_element_by_id('customAuthenticationForm:sourceConfi
 changeBindPasswordAuthLink = driver.find_element_by_id('customAuthenticationForm:sourceConfigsId:1:j_idt163:j_idt302:j_idt303')
 
 nameField.send_keys('auth_ldap_server')
-bindDNField.send_keys('CN=GLUU,CN=Users,DC=team4,DC=wildeagle,DC=local')
+designatedName = "CN=GLUU,CN=Users,DC=team" + teamNumber + ",DC=wildeagle,DC=local"
+bindDNField.send_keys(designatedName)
 maxConnectionsAuth.send_keys('5')
 # sAMAccountName
 primaryKeyField.send_keys('s')
@@ -67,7 +78,9 @@ WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'customAu
 addServerAuth = driver.find_element_by_id('customAuthenticationForm:sourceConfigsId:1:j_idt163:j_idt248:j_idt250:j_idt252:0:fInput')
 baseDNAuth = driver.find_element_by_id('customAuthenticationForm:sourceConfigsId:1:j_idt163:j_idt275:j_idt277:j_idt279:0:fInput')
 
-addServerAuth.send_keys('10.1.4.10:389')
+addressAndPort = "10.1." + teamNumber + ".10:389"
+addServerAuth.send_keys('10.1.4.10:389')"
+baseDesignatedName = "CN=Users,DC=team" + teamNumber + ",DC=wildeagle,DC=local"
 baseDNAuth.send_keys('CN=Users,DC=team4,DC=wildeagle,DC=local')
 
 # Set password for LDAP bind

@@ -5,6 +5,16 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
+from sys import argv
+
+# Get team number from a command line argument
+
+if len(argv) != 2:
+  exit(1)
+
+teamNumber = argv[1]
+
+siteURL = "https://spade.team" + teamNumber + ".wildeagle.net"
 
 # Set up driver, allow unverified TLS certs
 capabilities = webdriver.DesiredCapabilities().FIREFOX
@@ -13,7 +23,7 @@ driver = webdriver.Firefox(capabilities=capabilities)
 driver.implicitly_wait(10)
 
 # Get the page, wait for login form to display
-driver.get('https://spade.team4.wildeagle.net')
+driver.get(siteURL)
 WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, 'loginForm:username')))
 
 # Find the login form elements
@@ -31,7 +41,7 @@ submitButton.click()
 WebDriverWait(driver, 30).until(EC.title_is('Gluu'))
 
 # Go to cache refresh page
-driver.get('https://spade.team4.wildeagle.net/identity/organization/cacherefresh')
+driver.get(siteURL + "/identity/organization/cacherefresh")
 
 # Find form elements for first tab, elements for tabs
 pollingInterval = driver.find_element_by_name('cacheRefreshForm:j_idt267:vdsCacheRefreshPollingIntervalId')
@@ -43,7 +53,8 @@ sourceLDAPServersTab = driver.find_element_by_xpath('/html/body/div[1]/div/div/s
 # Populate first tab form data
 pollingInterval.send_keys('1')
 serverIP.clear()
-serverIP.send_keys('10.0.1.105')
+address = "10.10" + teamNumber + ".1.105"
+serverIP.send_keys(address)
 
 # Add source attribute mappings
 for i in range(5):
@@ -146,7 +157,8 @@ changeBindPasswordLink = driver.find_element_by_id('cacheRefreshForm:sourceConfi
 
 # Populate data that doesn't need link clicking
 connectionName.send_keys('Wildeagle AD')
-bindDN.send_keys('CN=GLUU,CN=Users,DC=team4,DC=wildeagle,DC=local')
+designatedName = "CN=GLUU,CN=Users,DC=team" + teamNumber + ",DC=wildeagle,DC=local"
+bindDN.send_keys(designatedName)
 maxConnections.send_keys('5')
 
 # Click links to open up two forms
@@ -158,8 +170,10 @@ WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'cacheRef
 # Find newly created fields and populate data
 serverAndPortField = driver.find_element_by_id('cacheRefreshForm:sourceConfigsId:0:j_idt632:j_idt717:j_idt719:j_idt721:0:fInput')
 baseDNField = driver.find_element_by_id('cacheRefreshForm:sourceConfigsId:0:j_idt632:j_idt744:j_idt746:j_idt748:0:fInput')
-serverAndPortField.send_keys('10.1.4.10:389')
-baseDNField.send_keys('CN=Users,DC=team4,DC=wildeagle,DC=local')
+addressAndPort = "10.1." + teamNumber + ".10:389"
+serverAndPortField.send_keys(addressAndPort)
+baseDesignatedField = "CN=Users,DC=team" + teamNumber + ",DC=wildeagle,DC=local"
+baseDNField.send_keys(baseDesignatedField)
 
 # Open "change bind password" frame, input password twice
 changeBindPasswordLink.click()
