@@ -4,6 +4,14 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from sys import argv
+
+# Get team number from a command line argument
+
+if len(argv) != 2:
+  exit(1)
+
+teamNumber = argv[1]
 
 # Set up driver, allow unverified TLS certs
 capabilities = webdriver.DesiredCapabilities().FIREFOX
@@ -12,7 +20,7 @@ driver = webdriver.Firefox(capabilities=capabilities)
 driver.implicitly_wait(10)
 
 # Get the page, wait for login form to display
-driver.get('https://spade.team4.wildeagle.net')
+driver.get("https://spade.team" + teamNumber + ".wildeagle.net")
 WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, 'loginForm:username')))
 
 # Find the login form elements

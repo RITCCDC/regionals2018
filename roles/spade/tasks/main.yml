@@ -66,7 +66,7 @@
 
 - name: Wait for webserver to come up
   uri:
-    url: "https://spade/identity"
+    url: "https://spade.team{{ team_number }}.wildeagle.net/identity"
     status_code: 200
     validate_certs: no
   register: response_code
@@ -75,7 +75,7 @@
   delegate_to: localhost
 
 - name: Check if auth is already configured
-  shell: python3 check_auth.py
+  shell: "python3 check_auth.py {{ team_number }}"
   args:
     chdir: "{{ role_path }}/files"
   delegate_to: localhost
@@ -83,14 +83,14 @@
   ignore_errors: yes
 
 - name: Integrate Gluu with Active Directory - cache refresh
-  shell: python3 cache_refresh.py
+  shell: "python3 cache_refresh.py {{ team_number }}"
   args:
     chdir: "{{ role_path }}/files"
   delegate_to: localhost
   when: authConfigured.rc == 1
 
 - name: Integrate Gluu with Active Directory - add AD as auth
-  shell: python3 add_auth_server.py
+  shell: "python3 add_auth_server.py {{ team_number }}"
   args:
     chdir: "{{ role_path }}/files"
   delegate_to: localhost
