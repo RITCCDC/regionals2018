@@ -72,8 +72,11 @@
     path: /tmp/hostnames.csv
     state: absent
 
-- name: Add DNS forwarder
-  win_shell: Add-DnsServerForwarder -IPAddress 10.1.4.254
+- name: Add Route 53 DNS forwarder
+  win_shell: "Add-DnsServerForwarder -IPAddress {{ route53_ip }}"
+
+- name: Add Google Public DNS forwarder
+  win_shell: "Add-DnsServerForwarder -IPAddress 8.8.8.8"
 
 - name: Disable password complexity
   win_security_policy:
