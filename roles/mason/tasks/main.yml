@@ -1,6 +1,6 @@
 - name: Check if iRedMail is installed
   uri:
-    url: https://mason/mail/index.php
+    url: "https://mason.team{{ team_number }}.wildeagle.net/mail/index.php"
     validate_certs: no
   delegate_to: localhost
   register: return
@@ -24,8 +24,8 @@
   when: return.status != 200
 
 - name: Copy install config
-  copy:
-    src: ../files/config
+  template:
+    src: ../templates/config
     dest: /tmp/iRedMail-0.9.8/config
     mode: 0644
   when: return.status != 200
