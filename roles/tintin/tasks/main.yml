@@ -20,7 +20,7 @@
 
 - name: Ensure domain exists
   win_domain:
-     dns_domain_name: team4.wildeagle.local
+     dns_domain_name: "team{{ team_number }}.wildeagle.local"
      safe_mode_password: Change.me!
   register: domain_result
 
@@ -30,8 +30,8 @@
 
 - name: Promote to domain controller
   win_domain_controller:
-     dns_domain_name: team4.wildeagle.local
-     domain_admin_user: Administrator@wildeagle.local
+     dns_domain_name: "team{{ team_number }}.wildeagle.local"
+     domain_admin_user: "Administrator@team{{ team_number }}.wildeagle.local"
      domain_admin_password: Change.me!
      safe_mode_password: Change.me!
      state: domain_controller
@@ -42,27 +42,41 @@
   when: ad_result.reboot_required
 
 - name: See if DNS already imported
-  win_shell: nslookup gadget.team4.wildeagle.local
+  win_shell: nslookup gadget.team{{ team_number }}.wildeagle.local
   register: dns_output
+
+- name: Create DNS records template file
+  template:
+    src: ../templates/hostnames.csv
+    dest: /tmp/hostnames.csv
+  delegate_to: localhost
 
 - name: Upload DNS records
   win_copy:
-     src: ../files/hostnames.csv
+     src: /tmp/hostnames.csv
      dest: C:\hostnames.csv
   when: dns_output.stderr.find("can't find") != -1
 
 - name: Import DNS records
-  script: ../files/Import-DNS.ps1 C:\hostnames.csv
+  script: "../files/Import-DNS.ps1 -Filename C:\\hostnames.csv -TeamNumber {{ team_number }}"
   when: dns_output.stderr.find("can't find") != -1
 
-- name: Clean up DNS records
+- name: Clean up DNS records (remotely)
   win_file:
      path: C:\hostnames.csv
      state: absent
   when: dns_output.stderr.find("can't find") != -1
 
-- name: Add DNS forwarder
-  win_shell: Add-DnsServerForwarder -IPAddress 10.1.4.254
+- name: Clean up DNS records (locally)
+  file:
+    path: /tmp/hostnames.csv
+    state: absent
+
+- name: Add Route 53 DNS forwarder
+  win_shell: "Add-DnsServerForwarder -IPAddress {{ route53_ip }}"
+
+- name: Add Google Public DNS forwarder
+  win_shell: "Add-DnsServerForwarder -IPAddress 8.8.8.8"
 
 - name: Disable password complexity
   win_security_policy:
