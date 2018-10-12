@@ -58,7 +58,7 @@
   when: dns_output.stderr.find("can't find") != -1
 
 - name: Import DNS records
-  script: ../files/Import-DNS.ps1 C:\hostnames.csv
+  script: "../files/Import-DNS.ps1 -Filename C:\\hostnames.csv -TeamNumber {{ team_number }}"
   when: dns_output.stderr.find("can't find") != -1
 
 - name: Clean up DNS records (remotely)
