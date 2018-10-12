@@ -345,7 +345,7 @@
             <disable-telnet>yes</disable-telnet>
             <disable-http>yes</disable-http>
           </service>
-          <hostname>gently.team4.wildeagle.net</hostname>
+          <hostname>gently.team{{team_number}}.wildeagle.net</hostname>
           <netmask>255.255.255.0</netmask>
           <default-gateway>172.16.2.254</default-gateway>
           <ip-address>172.16.2.1{{team_number}}</ip-address>
