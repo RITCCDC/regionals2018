@@ -2,7 +2,7 @@
   win_dns_client:
     adapter_names: "*"
     ipv4_addresses:
-      - 10.1.4.10
+      - 10.1.{{ team_number }}.10
 
 - name: Rename hostname
   win_hostname:
@@ -15,9 +15,9 @@
 
 - name: Join host to domain
   win_domain_membership:
-    dns_domain_name: team4.wildeagle.local
+    dns_domain_name: "team{{ team_number }}.wildeagle.local"
     hostname: "{{ lookup('csvfile', '{{ ansible_ip_addresses[0] }} file=../../tintin/files/hostnames.csv delimiter=,') }}"
-    domain_admin_user: TEAM4\Administrator
+    domain_admin_user: "TEAM{{ team_number }}\Administrator"
     domain_admin_password: Change.me!
     state: domain
   register: domain_state
