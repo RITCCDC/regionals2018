@@ -22,3 +22,20 @@
     path: /etc/vsftpd.conf
     state: present
   notify: Restart vsftpd
+
+- name: Specify anonymous FTP directory
+  lineinfile:
+    line: anon_root=/var/ftp
+    path: /etc/vsftpd.conf
+    state: present
+  notify: Restart vsftpd
+
+- name: Create anonymous FTP directory
+  file:
+    path: /var/ftp/pub
+    state: directory
+
+- name: Copy scoring engine file
+  copy:
+    src: scoringengine.txt
+    dest: /var/ftp/pub/scoringengine.txt
