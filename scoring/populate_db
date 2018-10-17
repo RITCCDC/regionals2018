@@ -1,0 +1,563 @@
+#!/usr/bin/env python
+
+from random import randint
+
+from sqlalchemy.exc import OperationalError, ProgrammingError
+
+import optparse
+import os
+
+from scoring_engine.models.base import Base
+from scoring_engine.models.team import Team
+from scoring_engine.models.user import User
+from scoring_engine.models.service import Service
+from scoring_engine.models.account import Account
+from scoring_engine.models.environment import Environment
+from scoring_engine.models.property import Property
+from scoring_engine.models.round import Round
+from scoring_engine.models.check import Check
+from scoring_engine.models.setting import Setting
+from scoring_engine.db import session, engine
+from scoring_engine.config import config
+from scoring_engine.engine.basic_check import CHECK_SUCCESS_TEXT, CHECK_FAILURE_TEXT, CHECK_TIMED_OUT_TEXT
+
+
+parser = optparse.OptionParser()
+parser.add_option('--overwrite-db', action="store_true", default=False)
+parser.add_option('--example', action="store_true", default=False)
+
+options, arguments = parser.parse_args()
+
+# In order to handle docker-compose usability
+# we have a check to see if the EXAMPLE environment
+# variable is true. If it is, we want to populate
+# the db with example data
+if 'EXAMPLE' in os.environ and os.environ['EXAMPLE'].lower() == 'true':
+    options.overwrite_db = True
+    options.example = True
+
+# If the OVERWRITE_DB environment variable is set
+# we want to delete any previous data in the db
+if 'OVERWRITE_DB' in os.environ and os.environ['OVERWRITE_DB'].lower() == 'true':
+    options.overwrite_db = os.environ['OVERWRITE_DB'] == 'true'
+
+if not options.overwrite_db:
+    try:
+        session.query(User).get(1)
+        print("Exiting script and not overwriting db...must use --overwrite-db to overwrite data.")
+        exit()
+    except (OperationalError, ProgrammingError):
+        # Database doesn't exist, so continuing on to setup script
+        print("Database doesn't exist yet...")
+
+print("Setting up DB")
+Base.metadata.drop_all(engine)
+Base.metadata.create_all(engine)
+
+useragents = [
+    'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+    'Opera/9.80 (Windows NT 6.2; Win64; x64) Presto/2.12 Version/12.16',
+    'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
+    'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)',
+    'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 1094) AppleWebKit/537.77.4 (KHTML like Gecko) Version/7.0.5 Safari/537.77.4',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 1094) AppleWebKit/537.78.2 (KHTML like Gecko) Version/7.0.6 Safari/537.78.2',
+    'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 1010) AppleWebKit/600.1.8 (KHTML like Gecko) Version/8.0 Safari/600.1.8',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 1068) AppleWebKit/534.59.10 (KHTML like Gecko) Version/5.1.9 Safari/534.59.10',
+]
+
+services = []
+
+print("Creating models and writing them to DB")
+num_teams = 1
+num_rounds = randint(20, 50)
+print("\tNum Blue Teams: " + str(num_teams))
+print()
+
+print("Creating White Team")
+white_team = Team(name="White Team", color="White")
+session.add(white_team)
+user = User(username="whiteteamuser", password="testpass", team=white_team)
+session.add(user)
+
+print("Creating Red Team")
+red_team = Team(name="Red Team", color="Red")
+session.add(red_team)
+user = User(username="redteamuser", password="testpass", team=red_team)
+session.add(user)
+session.commit()
+
+print("Creating Blue Teams and Services")
+for num in range(1, num_teams + 1):
+
+    print("\tCreating Team " + str(num))
+    team = Team(name="Team" + str(num), color="Blue")
+    session.add(team)
+
+    for user_num in range(1, 3):
+        username = "team" + str(num) + "user" + str(user_num)
+        print("\t\tCreating User " + username)
+        user = User(username=username, password="testpass", team=team)
+        session.add(user)
+
+    print("\t\tCreating DNS Service")
+    tintin_dns = Service(name="Tintin - DNS", team=team, check_name="DNSCheck", host="tintin.team" + str(num) + ".wildeagle.local", port=53, points=100)
+    tintin = Environment(service=tintin_dns, matching_regex='status: NOERROR')
+    session.add(tintin)
+    session.add(Property(environment=tintin, name='qtype', value='A'))
+    session.add(Property(environment=tintin, name='domain', value='tintin.team' + str(num) + '.wildeagle.local'))
+    holmes = Environment(service=tintin_dns, matching_regex='status: NOERROR')
+    session.add(holmes)
+    session.add(Property(environment=holmes, name='qtype', value='A'))
+    session.add(Property(environment=holmes, name='domain', value='holmes.team' + str(num) + '.wildeagle.local'))
+    payne = Environment(service=tintin_dns, matching_regex='status: NOERROR')
+    session.add(payne)
+    session.add(Property(environment=payne, name='qtype', value='A'))
+    session.add(Property(environment=payne, name='domain', value='payne.team' + str(num) + '.wildeagle.local'))
+    session.add(tintin_dns)
+    services.append(tintin_dns)
+
+    print("\t\tCreating LDAP Service")
+    tintin_ldap = Service(name='Tintin - LDAP', team=team, check_name='LDAPCheck', host='tintin.team' + str(num) + '.wildeagle.local', port=389, points=100)
+    session.add(Account(username='adam', password='BRIGHT-LONE-peru-found', service=tintin_ldap))
+    session.add(Account(username='chen', password='VENUS-loud-beauty-worth', service=tintin_ldap))
+    session.add(Account(username='perry', password='HELD-NEEDLE-burning-cuba', service=tintin_ldap))
+    session.add(Account(username='poe', password='DENMARK-THROWN-some-gentle', service=tintin_ldap))
+    session.add(Account(username='john', password='THICK-GROW-LISTEN-SWEET', service=tintin_ldap))
+    session.add(Account(username='hercule', password='SWEDEN-provide-pattern-know', service=tintin_ldap))
+    session.add(Account(username='dirk', password='BIRDS-THREW-JULY-HONOR', service=tintin_ldap))
+    session.add(Account(username='mike', password='ONLY-hunger-must-DECEMBER', service=tintin_ldap))
+    session.add(Account(username='sam', password='Passw0rd', service=tintin_ldap))
+    environment = Environment(service=tintin_ldap, matching_regex='result: 0 Success')
+    session.add(Property(environment=environment, name='domain', value='team' + str(num) + '.wildeagle.local'))
+    session.add(Property(environment=environment, name='base_dn', value='dc=team' + str(num) + ',dc=wildeagle,dc=local'))
+    session.add(tintin_ldap)
+    session.add(environment)
+    services.append(tintin_ldap)
+
+    print("\t\tCreating HTTP Service")
+    holmes_http = Service(name='Holmes - HTTP', team=team, check_name='HTTPCheck', host='holmes.team' + str(num) + '.wildeagle.local', port=80, points=100)
+    for useragent in useragents:
+        environment = Environment(service=holmes_http, matching_regex='dfir-memory-forensics.pdf')
+        session.add(Property(environment=environment, name='useragent', value=useragent))
+        session.add(Property(environment=environment, name='vhost', value='holmes.team' + str(num) + '.wildeagle.local'))
+        session.add(Property(environment=environment, name='uri', value='/'))
+        session.add(environment)
+        session.add(holmes_http)
+    services.append(holmes_http)
+
+    print("\t\tCreating HTTP Service")
+    marple = Service(name='Marple - HTTP', team=team, check_name='HTTPCheck', host='marple.team' + str(num) + '.wildeagle.local', port=80, points=100)
+    for useragent in useragents:
+        environment = Environment(service=marple, matching_regex='It works!')
+        session.add(Property(environment=environment, name='useragent', value=useragent))
+        session.add(Property(environment=environment, name='vhost', value='holmes.team' + str(num) + '.wildeagle.local'))
+        session.add(Property(environment=environment, name='uri', value='/'))
+        session.add(environment)
+        session.add(marple)
+    services.append(marple)
+
+    print("\t\tCreating FTP Service")
+    tracy = Service(name='Tracy - FTP', team=team, check_name='FTPCheck', host='tracy.team' + str(num) + '.wildeagle.local', port=21, points=100)
+    session.add(Account(username='sam', password='Passw0rd', service=tracy))
+    environment = Environment(service=tracy, matching_regex='^SUCCESS')
+    # We use double slashes in the filename to represent the absolute path
+    session.add(Property(environment=environment, name='remotefilepath', value='/testfile.txt'))
+    session.add(Property(environment=environment, name='filecontents', value='Sample file contents'))
+    session.add(tracy)
+    session.add(environment)
+    services.append(tracy)
+
+    print("\t\tCreating HTTP Service")
+    dupin = Service(name='Dupin - HTTP', team=team, check_name='HTTPCheck', host='dupin.team' + str(num) + '.wildeagle.net', port=8000, points=100)
+    for useragent in useragents:
+        environment = Environment(service=dupin, matching_regex='live to code, code to live')
+        session.add(Property(environment=environment, name='useragent', value=useragent))
+        session.add(Property(environment=environment, name='vhost', value='dupin.team' + str(num) + '.wildeagle.net'))
+        session.add(Property(environment=environment, name='uri', value='/en-US/account/login'))
+        session.add(environment)
+        session.add(dupin)
+    services.append(dupin)
+
+    print("\t\tCreating SSH Service")
+    brown_ssh = Service(name='Brown - SSH', team=team, check_name='SSHCheck', host='brown.team' + str(num) + '.wildeagle.net', port=22, points=100)
+    session.add(brown_ssh)
+    session.add(Account(username='sam', password='Passw0rd', service=brown_ssh))
+    #session.add(Account(username='rpeterson', password='otherpass', service=brown_ssh))
+    environment = Environment(service=brown_ssh, matching_regex='^SUCCESS')
+    session.add(Property(environment=environment, name='commands', value='id;ls -l /home'))
+    session.add(environment)
+    # The commands property supports multiple commands, separated by ';'
+    environment = Environment(service=brown_ssh, matching_regex='PID')
+    session.add(Property(environment=environment, name='commands', value='ps'))
+    session.add(environment)
+    environment = Environment(service=brown_ssh, matching_regex='3.10.0-693.el7.x86_64')
+    session.add(Property(environment=environment, name='commands', value='uname -a'))
+    session.add(environment)
+    # This will need to change in your environment, since it's unlikely we'll have the same kernel versions
+    services.append(brown_ssh)
+
+    print("\t\tCreating HTTPS Service")
+    brown_https = Service(name='Brown - HTTPS', team=team, check_name='HTTPSCheck', host='brown.team' + str(num) + '.wildeagle.net', port=8443, points=100)
+    for useragent in useragents:
+        environment = Environment(service=brown_https, matching_regex='X-UA-Compatible')
+        session.add(Property(environment=environment, name='useragent', value=useragent))
+        session.add(Property(environment=environment, name='vhost', value='brown.team' + str(num) + '.wildeagle.net'))
+        session.add(Property(environment=environment, name='uri', value='/'))
+        session.add(environment)
+        session.add(brown_https)
+    services.append(brown_https)
+
+    print("\t\tCreating HTTP Service")
+    cao = Service(name='Cao - HTTP', team=team, check_name='HTTPCheck', host='hammer.team' + str(num) + '.wildeagle.net', port=80, points=100)
+    for useragent in useragents:
+        environment = Environment(service=cao, matching_regex='Thank you for using nginx')
+        session.add(Property(environment=environment, name='useragent', value=useragent))
+        session.add(Property(environment=environment, name='vhost', value='cao.team' + str(num) + '.wildeagle.net'))
+        session.add(Property(environment=environment, name='uri', value='/'))
+        session.add(environment)
+        session.add(cao)
+    services.append(cao)
+
+    print("\t\tCreating HTTPS Service")
+    spade = Service(name='Spade - HTTPS', team=team, check_name='HTTPSCheck', host='hammer.team' + str(num) + '.wildeagle.net', port=443, points=100)
+    for useragent in useragents:
+        environment = Environment(service=spade, matching_regex='OXAuth')
+        session.add(Property(environment=environment, name='useragent', value=useragent))
+        session.add(Property(environment=environment, name='vhost', value='spade.team' + str(num) + '.wildeagle.net'))
+        session.add(Property(environment=environment, name='uri', value='/oxauth/login'))
+        session.add(environment)
+        session.add(spade)
+    services.append(spade)
+
+    print("\t\tCreating HTTP Service")
+    poirot = Service(name='Poirot - HTTP', team=team, check_name='HTTPCheck', host='hammer.team' + str(num) + '.wildeagle.net', port=80, points=100)
+    for useragent in useragents:
+        environment = Environment(service=poirot, matching_regex='TITLE_CHANGE_PASSWORD')
+        session.add(Property(environment=environment, name='useragent', value=useragent))
+        session.add(Property(environment=environment, name='vhost', value='poirot.team' + str(num) + '.wildeagle.net'))
+        session.add(Property(environment=environment, name='uri', value='/'))
+        session.add(environment)
+        session.add(poirot)
+    services.append(poirot)
+
+    print("\t\tCreating SMTP Service")
+    mason_smtp = Service(name='Mason - SMTP', team=team, check_name='SMTPCheck', host='127.0.0.1', port=25, points=100)
+    session.add(Account(username='postmaster@team' + str(num) + '.wildeagle.net', password='Change.me!', service=mason_smtp))
+    environment = Environment(service=mason_smtp, matching_regex='Successfully sent email')
+    session.add(Property(environment=environment, name='fromuser', value='postmaster@team' + str(num) + '.wildeagle.net'))
+    session.add(Property(environment=environment, name='touser', value='postmaster@team' + str(num) + '.wildeagle.net'))
+    session.add(Property(environment=environment, name='subject', value='A scoring engine test subject!'))
+    session.add(Property(environment=environment, name='body', value='This is the body of the email'))
+    session.add(mason_smtp)
+    session.add(environment)
+    services.append(mason_smtp)
+
+    #print("\t\tCreating ICMP Service")
+   #service = Service(name="ICMP", team=team, check_name="ICMPCheck", host="testbed_icmp", points=25)
+    #session.add(Environment(service=service, matching_regex='1 packets transmitted, 1 received'))
+    #session.add(service)
+    #services.append(service)
+
+    #print("\t\tCreating SSH Service")
+    #service = Service(name='SSH', team=team, check_name='SSHCheck', host='testbed_ssh', port=22, points=150)
+    #session.add(service)
+    #session.add(Account(username='ttesterson', password='testpass', service=service))
+    #session.add(Account(username='rpeterson', password='otherpass', service=service))
+    #environment = Environment(service=service, matching_regex='^SUCCESS')
+    #session.add(environment)
+    # The commands property supports multiple commands, separated by ';'
+    #session.add(Property(environment=environment, name='commands', value='id;ls -l /home'))
+    #environment = Environment(service=service, matching_regex='PID')
+    #session.add(environment)
+    #session.add(Property(environment=environment, name='commands', value='ps'))
+    #services.append(service)
+
+    #print("\t\tCreating HTTP Service")
+    #service = Service(name='HTTP', team=team, check_name='HTTPCheck', host='testbed_web', port=80, points=100)
+    #for useragent in useragents:
+    #    environment = Environment(service=service, matching_regex='Thank you for using nginx')
+    #    session.add(Property(environment=environment, name='useragent', value=useragent))
+    #    session.add(Property(environment=environment, name='vhost', value='testbed_web'))
+    #    session.add(Property(environment=environment, name='uri', value='/'))
+    #    session.add(environment)
+    #    session.add(service)
+    #services.append(service)
+
+    #print("\t\tCreating HTTPS Service")
+    #service = Service(name='HTTPS', team=team, check_name='HTTPSCheck', host='testbed_web', port=443, points=100)
+    #for useragent in useragents:
+    #    environment = Environment(service=service, matching_regex='Thank you for using nginx')
+    #    session.add(Property(environment=environment, name='useragent', value=useragent))
+    #    session.add(Property(environment=environment, name='vhost', value='testbed_web'))
+    #    session.add(Property(environment=environment, name='uri', value='/'))
+    #    session.add(environment)
+    #    session.add(service)
+    #services.append(service)
+
+    #print("\t\tCreating MYSQL Service")
+    #service = Service(name='MySQL', team=team, check_name='MYSQLCheck', host='testbed_mysql', port=3306, points=100)
+    #session.add(Account(username='user1', password='CHANGEME', service=service))
+    #environment = Environment(service=service, matching_regex='USER_PRIVILEGES')
+    #session.add(Property(environment=environment, name='database', value='information_schema'))
+    #session.add(Property(environment=environment, name='command', value='show tables;'))
+    #session.add(service)
+    #session.add(environment)
+    #services.append(service)
+
+    #print("\t\tCreating MSSQL Service")
+    #service = Service(name='MSSQL', team=team, check_name='MSSQLCheck', host='testbed_mssql', port=1433, points=100)
+    #session.add(Account(username='sa', password='yourStrong(!)Password', service=service))
+    #environment = Environment(service=service, matching_regex='Microsoft SQL Server 2017')
+    #session.add(Property(environment=environment, name='database', value='master'))
+    #session.add(Property(environment=environment, name='command', value='SELECT @@version;'))
+    #session.add(service)
+    #session.add(environment)
+    #services.append(service)
+
+    #print("\t\tCreating FTP Service")
+    #service = Service(name='FTP', team=team, check_name='FTPCheck', host='testbed_ftp', port=21, points=150)
+    #session.add(Account(username='ttesterson', password='testpass', service=service))
+    #session.add(Account(username='rpeterson', password='otherpass', service=service))
+    #environment = Environment(service=service, matching_regex='^SUCCESS')
+    # We use double slashes in the filename to represent the absolute path
+    #session.add(Property(environment=environment, name='remotefilepath', value='/ftp_files/testfile.txt'))
+    #session.add(Property(environment=environment, name='filecontents', value='Sample file contents'))
+    #session.add(service)
+    #session.add(environment)
+    #services.append(service)
+
+    #print("\t\tCreating Elasticsearch Service")
+    #service = Service(name='Elasticsearch', team=team, check_name='ElasticsearchCheck', host='testbed_elasticsearch', port=9200, points=100)
+    #environment = Environment(service=service, matching_regex='^SUCCESS')
+    #session.add(Property(environment=environment, name='index', value='messages'))
+    #session.add(Property(environment=environment, name='doc_type', value='sample_message'))
+    #session.add(service)
+    #session.add(environment)
+    #services.append(service)
+
+    #print("\t\tCreating SMB Service")
+    #service = Service(name="SMB", team=team, check_name="SMBCheck", host='testbed_smb', port=445, points=100)
+    #environment = Environment(service=service, matching_regex='^SUCCESS')
+    #session.add(Property(environment=environment, name='share', value='ScoredShare'))
+    #session.add(Property(environment=environment, name='file', value='flag.txt'))
+    # SHA256 hash of file
+    #session.add(Property(environment=environment, name='hash', value='3ac8347c1130bd1ffe9078f99be6cb690baedd9e5552de0f7140c0daded7e1fa'))
+    #session.add(Account(username='ttesterson', password='test', service=service))
+    #session.add(service)
+    #session.add(environment)
+    #services.append(service)
+
+    #print("\t\tCreating DNS Service")
+    #service = Service(name="DNS", team=team, check_name="DNSCheck", host="testbed_dns", port=53, points=100)
+    #environment = Environment(service=service, matching_regex='status: NOERROR')
+    #session.add(environment)
+    #session.add(Property(environment=environment, name='qtype', value='A'))
+    #session.add(Property(environment=environment, name='domain', value='www.team.scoringengine'))
+    #environment_quad = Environment(service=service, matching_regex='status: NOERROR')
+    #session.add(environment_quad)
+    #session.add(Property(environment=environment_quad, name='qtype', value='AAAA'))
+    #session.add(Property(environment=environment_quad, name='domain', value='www.team.scoringengine'))
+    #environment_anotherhost = Environment(service=service, matching_regex='status: NOERROR')
+    #session.add(environment_anotherhost)
+    #session.add(Property(environment=environment_anotherhost, name='qtype', value='A'))
+    #session.add(Property(environment=environment_anotherhost, name='domain', value='anotherhost.team.scoringengine'))
+    #session.add(service)
+    #services.append(service)
+
+    #print("\t\tCreating POSTGRESQL Service")
+    #service = Service(name='PostgreSQL', team=team, check_name='POSTGRESQLCheck', host='testbed_postgresql', port=5432, points=100)
+    #session.add(Account(username='bender', password='1234pass', service=service))
+    #session.add(Account(username='dscott', password='password1', service=service))
+    #session.add(Account(username='ttesterson', password='somepass', service=service))
+    #environment = Environment(service=service, matching_regex='You are connected to database')
+    #session.add(Property(environment=environment, name='database', value='testdb'))
+    #session.add(Property(environment=environment, name='command', value='\conninfo'))
+    #session.add(service)
+    #session.add(environment)
+    #services.append(service)
+
+    # print("\t\tCreating RDP Service")
+    # service = Service(name="RDP", team=team, check_name="RDPCheck", host='testbed_rdp', port=3389, points=100)
+    # environment = Environment(service=service, matching_regex='SUCCESS$')
+    # session.add(Account(username='ttesterson', password='test', service=service))
+    # session.add(service)
+    # session.add(environment)
+    # services.append(service)
+
+    # print("\t\tCreating LDAP Service")
+    # service = Service(name='LDAP', team=team, check_name='LDAPCheck', host='testbed_ldap', port=389, points=50)
+    # session.add(Account(username='ttesterson', password='testpass', service=service))
+    # session.add(Account(username='rpeterson', password='otherpass', service=service))
+    # environment = Environment(service=service, matching_regex='^result: 0 Success')
+    # session.add(Property(environment=environment, name='domain', value='example.com'))
+    # session.add(Property(environment=environment, name='base_dn', value='dc=example,dc=com'))
+    # session.add(service)
+    # session.add(environment)
+    # services.append(service)
+
+    # print("\t\tCreating POP3 Service")
+    # service = Service(name='POP3', team=team, check_name='POP3Check', host='127.0.0.1', port=110, points=100)
+    # session.add(Account(username='testuser', password='testpass', service=service))
+    # environment = Environment(service=service, matching_regex='ACCOUNT FOUND')
+    # session.add(Property(environment=environment, name='domain', value='test.com'))
+    # session.add(service)
+    # session.add(environment)
+    # services.append(service)
+
+    # print("\t\tCreating POP3S Service")
+    # service = Service(name='POP3S', team=team, check_name='POP3SCheck', host='127.0.0.1', port=110, points=100)
+    # session.add(Account(username='testuser', password='testpass', service=service))
+    # environment = Environment(service=service, matching_regex='ACCOUNT FOUND')
+    # session.add(Property(environment=environment, name='domain', value='test.com'))
+    # session.add(service)
+    # session.add(environment)
+    # services.append(service)
+
+    # print("\t\tCreating IMAP Service")
+    # service = Service(name='IMAP', team=team, check_name='IMAPCheck', host='127.0.0.1', port=143, points=100)
+    # session.add(Account(username='testuser', password='testpass', service=service))
+    # environment = Environment(service=service, matching_regex='ACCOUNT FOUND')
+    # session.add(Property(environment=environment, name='domain', value='test.com'))
+    # session.add(service)
+    # session.add(environment)
+    # services.append(service)
+
+    # print("\t\tCreating IMAPS Service")
+    # service = Service(name='IMAPS', team=team, check_name='IMAPSCheck', host='127.0.0.1', port=143, points=100)
+    # session.add(Account(username='testuser', password='testpass', service=service))
+    # environment = Environment(service=service, matching_regex='ACCOUNT FOUND')
+    # session.add(Property(environment=environment, name='domain', value='test.com'))
+    # session.add(service)
+    # session.add(environment)
+    # services.append(service)
+
+    # print("\t\tCreating SMTP Service")
+    # service = Service(name='SMTP', team=team, check_name='SMTPCheck', host='127.0.0.1', port=25, points=100)
+    # session.add(Account(username='testuser@domain.com', password='testpass', service=service))
+    # environment = Environment(service=service, matching_regex='Successfully sent email')
+    # session.add(Property(environment=environment, name='fromuser', value='user@domain.com'))
+    # session.add(Property(environment=environment, name='touser', value='someother@example.com'))
+    # session.add(Property(environment=environment, name='subject', value='A scoring engine test subject!'))
+    # session.add(Property(environment=environment, name='body', value='This is the body of the email'))
+    # session.add(service)
+    # session.add(environment)
+    # services.append(service)
+
+    # print("\t\tCreating SMTPS Service")
+    # service = Service(name='SMTPS', team=team, check_name='SMTPSCheck', host='127.0.0.1', port=587, points=100)
+    # session.add(Account(username='testuser@domain.com', password='testpass', service=service))
+    # environment = Environment(service=service, matching_regex='Successfully sent email')
+    # session.add(Property(environment=environment, name='fromuser', value='user@domain.com'))
+    # session.add(Property(environment=environment, name='touser', value='someother@example.com'))
+    # session.add(Property(environment=environment, name='subject', value='A scoring engine test subject!'))
+    # session.add(Property(environment=environment, name='body', value='This is the body of the email'))
+    # session.add(service)
+    # session.add(environment)
+    # services.append(service)
+
+    # print("\t\tCreating VNC Service")
+    # service = Service(name='VNC', team=team, check_name='VNCCheck', host='127.0.0.1', port=5900, points=100)
+    # # BLANK for no username required
+    # session.add(Account(username='BLANK', password='testpass', service=service))
+    # environment = Environment(service=service, matching_regex='ACCOUNT FOUND')
+    # session.add(service)
+    # session.add(environment)
+    # services.append(service)
+
+session.commit()
+
+
+if options.example:
+    print("Creating " + str(num_rounds) + " rounds")
+    for num_round in range(1, num_rounds + 1):
+        print("\tCreating round " + str(num_round))
+        round_obj = Round(number=num_round)
+        for service in services:
+            # print("\t\tCreating check for " + str(service.id))
+            output = ''
+            if randint(0, 1) == 1:
+                result = True
+                reason = CHECK_SUCCESS_TEXT
+                output = 'Some random output of a command'
+            else:
+                result = False
+                output = 'Errored output'
+                if randint(0, 1) == 1:
+                    reason = CHECK_FAILURE_TEXT
+                else:
+                    reason = CHECK_TIMED_OUT_TEXT
+
+            command = 'ping -c 1 127.0.0.1'
+            check = Check(round=round_obj, service=service)
+            check.finished(result, reason, output, command)
+            session.add(check)
+    session.commit()
+
+about_content = '''
+<h4>Use the following credentials to login</h4>
+<ul>
+    <li>whiteteamuser:testpass</li>
+    <li>team1user1:testpass</li>
+    <li>team2user1:testpass</li>
+    <li>redteamuser:testpass</li>
+</ul>'''
+
+welcome_content = '''
+<div class="row">
+    <h1 class="text-center">Diamond</h1>
+</div>
+<div class="row">
+    <div class="card">
+        <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    </div>
+    <div class="card">
+        <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    </div>
+    <div class="card">
+        <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    </div>
+</div>
+<div class="row">
+    <h1 class="text-center">Platinum</h1>
+</div>
+<div class="row">
+    <div class="card">
+        <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    </div>
+    <div class="card">
+        <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    </div>
+    <div class="card">
+        <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    </div>
+</div>
+<div class="row">
+    <h1 class="text-center">Gold</h1>
+</div>
+<div class="row">
+    <div class="card">
+        <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    </div>
+    <div class="card">
+        <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    </div>
+    <div class="card">
+        <img class='center-block' src="static/images/logo-placeholder.jpg" alt="sponsor image placeholder">
+    </div>
+</div>
+'''
+
+print("Creating the default Settings")
+about_page_setting = Setting(name='about_page_content', value=about_content)
+session.add(about_page_setting)
+welcome_page_setting = Setting(name='welcome_page_content', value=welcome_content)
+session.add(welcome_page_setting)
+round_time_sleep_setting = Setting(name='round_time_sleep', value=config.round_time_sleep)
+session.add(round_time_sleep_setting)
+worker_refresh_time_setting = Setting(name='worker_refresh_time', value=config.worker_refresh_time)
+session.add(worker_refresh_time_setting)
+blue_team_update_hostname_setting = Setting(name='blue_team_update_hostname', value=True)
+session.add(blue_team_update_hostname_setting)
+session.commit()
