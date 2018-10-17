@@ -70,7 +70,7 @@ useragents = [
 services = []
 
 print("Creating models and writing them to DB")
-num_teams = 1
+num_teams = 2
 num_rounds = randint(20, 50)
 print("\tNum Blue Teams: " + str(num_teams))
 print()
@@ -160,7 +160,7 @@ for num in range(1, num_teams + 1):
 
     print("\t\tCreating FTP Service")
     tracy = Service(name='Tracy - FTP', team=team, check_name='FTPCheck', host='tracy.team' + str(num) + '.wildeagle.local', port=21, points=100)
-    session.add(Account(username='sam', password='Passw0rd', service=tracy))
+    session.add(Account(username='scoringEngine', password='scoringEngineTest', service=tracy))
     environment = Environment(service=tracy, matching_regex='^SUCCESS')
     # We use double slashes in the filename to represent the absolute path
     session.add(Property(environment=environment, name='remotefilepath', value='/testfile.txt'))
@@ -183,7 +183,7 @@ for num in range(1, num_teams + 1):
     print("\t\tCreating SSH Service")
     brown_ssh = Service(name='Brown - SSH', team=team, check_name='SSHCheck', host='brown.team' + str(num) + '.wildeagle.net', port=22, points=100)
     session.add(brown_ssh)
-    session.add(Account(username='sam', password='Passw0rd', service=brown_ssh))
+    session.add(Account(username='scoringEngine', password='scoringEngineTest', service=brown_ssh))
     #session.add(Account(username='rpeterson', password='otherpass', service=brown_ssh))
     environment = Environment(service=brown_ssh, matching_regex='^SUCCESS')
     session.add(Property(environment=environment, name='commands', value='id;ls -l /home'))
@@ -209,10 +209,10 @@ for num in range(1, num_teams + 1):
         session.add(brown_https)
     services.append(brown_https)
 
-    print("\t\tCreating HTTP Service")
-    cao = Service(name='Cao - HTTP', team=team, check_name='HTTPCheck', host='hammer.team' + str(num) + '.wildeagle.net', port=80, points=100)
+    print("\t\tCreating HTTPS Service")
+    cao = Service(name='Cao - HTTPS', team=team, check_name='HTTPSCheck', host='hammer.team' + str(num) + '.wildeagle.net', port=443, points=100)
     for useragent in useragents:
-        environment = Environment(service=cao, matching_regex='Thank you for using nginx')
+        environment = Environment(service=cao, matching_regex='33.0.1.2.3')
         session.add(Property(environment=environment, name='useragent', value=useragent))
         session.add(Property(environment=environment, name='vhost', value='cao.team' + str(num) + '.wildeagle.net'))
         session.add(Property(environment=environment, name='uri', value='/'))

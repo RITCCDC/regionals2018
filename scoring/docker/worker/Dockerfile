@@ -46,10 +46,10 @@ RUN apt-get install -y ldap-utils
 RUN apt-get install -y curl
 
 # SMTP/S Check
-#RUN cp /home/engine/scoring_engine/src/scoring_engine/engine/checks/bin/smtp_check /usr/bin/smtp_check
-#RUN cp /home/engine/scoring_engine/src/scoring_engine/engine/checks/bin/smtps_check /usr/bin/smtps_check
-#RUN chmod a+x /usr/bin/smtp_check
-#RUN chmod a+x /usr/bin/smtps_check
+RUN cp /app/scoring_engine/checks/bin/smtp_check /usr/bin/smtp_check
+RUN cp /app/scoring_engine/checks/bin/smtps_check /usr/bin/smtps_check
+RUN chmod a+x /usr/bin/smtp_check
+RUN chmod a+x /usr/bin/smtps_check
 
 # Everything else Check
 RUN apt-get install -y medusa
