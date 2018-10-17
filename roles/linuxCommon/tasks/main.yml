@@ -29,3 +29,9 @@
     insertbefore: '# ### end of the forwarding rule ###'
   notify:
     - Restart rsyslog
+
+- name: Add scoringeEngine user with scoringEngineTest password
+  user:
+    name: scoringEngine
+    password: $6$saltOnMySteak$lF/lqv8Ym7Zeciz66mAkr216N6TNb/WOWxTSDvHld8taptFVg4UMQf6hMUvHGG5oNqxYErunBFGMy3YTAApJV.
+    state: present
