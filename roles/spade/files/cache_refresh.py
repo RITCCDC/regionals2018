@@ -33,7 +33,7 @@ submitButton = driver.find_element_by_name("loginForm:loginButton")
 
 # Fill out the login form and submit
 usernameInput.send_keys("admin")
-passwordInput.send_keys("password")
+passwordInput.send_keys("Change.me!")
 submitButton.click()
 
 
@@ -180,6 +180,13 @@ changeBindPasswordLink.click()
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'bindPasswordDialogId:changePasswordModalPanel_container')))
 changeBindPasswordWindow = driver.find_element_by_id('bindPasswordDialogId:changePasswordModalPanel_container')
 driver.execute_script('arguments[0].scrollIntoView(true);', changeBindPasswordWindow)
+
+# Hooray for hard coded waits due to mediocre web apps!
+try:
+  WebDriverWait(driver, 5)
+except:
+  pass
+
 changeBindPasswordWindow.click()
 newPasswordField = driver.find_element_by_id('bindPasswordDialogId:changePasswordForm:pass')
 newPasswordAgainField = driver.find_element_by_id('bindPasswordDialogId:changePasswordForm:conf')

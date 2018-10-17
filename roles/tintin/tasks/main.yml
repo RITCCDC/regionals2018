@@ -71,6 +71,7 @@
   file:
     path: /tmp/hostnames.csv
     state: absent
+  delegate_to: localhost
 
 - name: Add Route 53 DNS forwarder
   win_shell: "Add-DnsServerForwarder -IPAddress {{ route53_ip }}"
@@ -90,7 +91,7 @@
      dest: C:\users.csv
 
 - name: Import domain users
-  script: ../files/Add-Users.ps1 C:\users.csv
+  script: "../files/Add-Users.ps1 {{ team_number }}"
 
 - name: Clean up users.csv
   win_file:
