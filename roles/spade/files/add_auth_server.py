@@ -32,7 +32,7 @@ submitButton = driver.find_element_by_name("loginForm:loginButton")
 
 # Fill out the login form and submit
 usernameInput.send_keys("admin")
-passwordInput.send_keys("password")
+passwordInput.send_keys("Change.me!")
 submitButton.click()
 
 
@@ -79,9 +79,9 @@ addServerAuth = driver.find_element_by_id('customAuthenticationForm:sourceConfig
 baseDNAuth = driver.find_element_by_id('customAuthenticationForm:sourceConfigsId:1:j_idt163:j_idt275:j_idt277:j_idt279:0:fInput')
 
 addressAndPort = "10.1." + teamNumber + ".10:389"
-addServerAuth.send_keys('10.1.4.10:389')"
+addServerAuth.send_keys('10.1.' + teamNumber + '.10:389')
 baseDesignatedName = "CN=Users,DC=team" + teamNumber + ",DC=wildeagle,DC=local"
-baseDNAuth.send_keys('CN=Users,DC=team4,DC=wildeagle,DC=local')
+baseDNAuth.send_keys('CN=Users,DC=team' + teamNumber + ',DC=wildeagle,DC=local')
 
 # Set password for LDAP bind
 changeBindPasswordAuthLink.click()
