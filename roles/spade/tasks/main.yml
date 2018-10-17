@@ -42,7 +42,7 @@
     gluuInstalled: "{{ gluuInstallLog.stat.exists }}"
 
 - name: Send Gluu setup properties
-  copy:
+  template:
     src: setup.properties
     dest: /install/community-edition-setup/setup.properties
   delegate_to: gluuContainer

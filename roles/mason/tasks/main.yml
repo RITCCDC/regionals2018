@@ -37,7 +37,7 @@
   when: return.status != 200
 
 - name: Install iRedMail
-  shell: "IREDMAIL_DEBUG='NO' AUTO_USE_EXISTING_CONFIG_FILE=y AUTO_INSTALL_WITHOUT_CONFIRM=y bash iRedMail.sh"
+  shell: "IREDMAIL_DEBUG='NO' AUTO_USE_EXISTING_CONFIG_FILE=y AUTO_INSTALL_WITHOUT_CONFIRM=y AUTO_CLEANUP_REPLACE_FIREWALL_RULES=y AUTO_CLEANUP_RESTART_IPTABLES=y bash iRedMail.sh"
   args:
     chdir: "/tmp/iRedMail-0.9.8"
   register: iredmail_install

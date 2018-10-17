@@ -139,7 +139,7 @@
 
 
 - name: Upload metadata to Gluu server
-  shell: "python3 addCaoSAML.py -g spade.team{{team_number}}.wildeagle.net -u admin -p password -n cao -d OTRS -f /tmp/cao_metadata.xml"
+  shell: "python3 addCaoSAML.py -g spade.team{{team_number}}.wildeagle.net -u admin -p Change.me! -n cao -d OTRS -f /tmp/cao_metadata.xml"
   args:
     chdir: "{{ role_path }}/files"
   delegate_to: localhost
