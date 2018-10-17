@@ -1,6 +1,6 @@
 - name: Try to reach PAN
   panos_check:
-    ip_address: "172.16.2.1{{ team_number }}"
+    ip_address: "172.16.1.{{ team_number }}"
     password: "admin"
   register: auth_check
   ignore_errors: yes
@@ -17,7 +17,6 @@
     password: "admin"
     file: /tmp/config.xml
     category: "configuration"
-    validate_certs: no
   register: upload_result
   when: auth_check is not failed
 
