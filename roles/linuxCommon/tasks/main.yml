@@ -1,6 +1,6 @@
 - name: Set the hostname
   hostname:
-    name: "{{ ansible_host }}"
+    name: "{{ inventory_hostname }}"
 
 - name: Transfer hosts file
   template:
