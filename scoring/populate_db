@@ -163,8 +163,8 @@ for num in range(1, num_teams + 1):
     session.add(Account(username='scoringEngine', password='scoringEngineTest', service=tracy))
     environment = Environment(service=tracy, matching_regex='^SUCCESS')
     # We use double slashes in the filename to represent the absolute path
-    session.add(Property(environment=environment, name='remotefilepath', value='/testfile.txt'))
-    session.add(Property(environment=environment, name='filecontents', value='Sample file contents'))
+    session.add(Property(environment=environment, name='remotefilepath', value='scoringengine.txt'))
+    session.add(Property(environment=environment, name='filecontents', value='This is the story of a team Who got paranoid and deleted this file And while they look so good in photographs The scoring engine hates them Because its broken Please do not delete this file. Love, Black Team'))
     session.add(tracy)
     session.add(environment)
     services.append(tracy)
@@ -223,7 +223,7 @@ for num in range(1, num_teams + 1):
     print("\t\tCreating HTTPS Service")
     spade = Service(name='Spade - HTTPS', team=team, check_name='HTTPSCheck', host='hammer.team' + str(num) + '.wildeagle.net', port=443, points=100)
     for useragent in useragents:
-        environment = Environment(service=spade, matching_regex='OXAuth')
+        environment = Environment(service=spade, matching_regex='oxAuth')
         session.add(Property(environment=environment, name='useragent', value=useragent))
         session.add(Property(environment=environment, name='vhost', value='spade.team' + str(num) + '.wildeagle.net'))
         session.add(Property(environment=environment, name='uri', value='/oxauth/login'))
@@ -242,8 +242,8 @@ for num in range(1, num_teams + 1):
         session.add(poirot)
     services.append(poirot)
 
-    print("\t\tCreating SMTP Service")
-    mason_smtp = Service(name='Mason - SMTP', team=team, check_name='SMTPCheck', host='127.0.0.1', port=25, points=100)
+    print("\t\tCreating SMTPS Service")
+    mason_smtp = Service(name='Mason - SMTPS', team=team, check_name='SMTPSCheck', host='mason.team' + str(num) + '.wildeagle.net', port=587, points=100)
     session.add(Account(username='postmaster@team' + str(num) + '.wildeagle.net', password='Change.me!', service=mason_smtp))
     environment = Environment(service=mason_smtp, matching_regex='Successfully sent email')
     session.add(Property(environment=environment, name='fromuser', value='postmaster@team' + str(num) + '.wildeagle.net'))
