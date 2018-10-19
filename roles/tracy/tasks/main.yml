@@ -30,6 +30,20 @@
     state: present
   notify: Restart vsftpd
 
+- name: Fix PAM module, allowing local login
+  lineinfile:
+    regexp: 'pam_service_name=vsftpd'
+    line: pam_service_name=ftp
+    state: present
+  notify: restart vsftpd
+
+- name: Allow uploads
+  lineinfile:
+    regexp: '#write_enable=yes'
+    line: write_enable=yes
+    state: present
+  notify: restart vsftpd
+
 - name: Create anonymous FTP directory
   file:
     path: /var/ftp/pub
