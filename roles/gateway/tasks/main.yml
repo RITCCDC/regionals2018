@@ -17,6 +17,7 @@
     password: "admin"
     file: /tmp/config.xml
     category: "configuration"
+    validate_certs: no
   register: upload_result
   when: auth_check is not failed
 
