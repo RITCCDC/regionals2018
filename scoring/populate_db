@@ -70,7 +70,7 @@ useragents = [
 services = []
 
 print("Creating models and writing them to DB")
-num_teams = 2
+num_teams = 4
 num_rounds = randint(20, 50)
 print("\tNum Blue Teams: " + str(num_teams))
 print()
