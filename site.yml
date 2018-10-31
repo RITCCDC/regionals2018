@@ -26,6 +26,10 @@
     - windowsCommon
     - windowsSplunkMonitored
 
+- hosts: windows10
+  roles:
+    - windowsCommon
+
 - hosts: linux
   roles:
     - linuxCommon

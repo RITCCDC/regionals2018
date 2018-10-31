@@ -2,3 +2,4 @@
   win_service:
     name: SplunkForwarder
     state: restarted
+  ignore_errors: yes

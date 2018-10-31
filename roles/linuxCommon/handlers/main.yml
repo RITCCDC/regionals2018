@@ -5,7 +5,7 @@
 
 - name: Wait for reboot
   local_action:
-    module: wait_for host={{ inventory_hostname }} port=22 state=started delay=30 timeout=60
+    module: wait_for host={{ ansible_hostname }} port=22 state=started delay=30 timeout=60
   become: false
 
 - name: Restart rsyslog

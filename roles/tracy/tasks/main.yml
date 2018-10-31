@@ -32,17 +32,19 @@
 
 - name: Fix PAM module, allowing local login
   lineinfile:
+    path: /etc/vsftpd.conf
     regexp: 'pam_service_name=vsftpd'
     line: pam_service_name=ftp
     state: present
-  notify: restart vsftpd
+  notify: Restart vsftpd
 
 - name: Allow uploads
   lineinfile:
+    path: /etc/vsftpd.conf
     regexp: '#write_enable=yes'
     line: write_enable=yes
     state: present
-  notify: restart vsftpd
+  notify: Restart vsftpd
 
 - name: Create anonymous FTP directory
   file:
